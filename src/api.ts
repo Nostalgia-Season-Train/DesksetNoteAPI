@@ -1,6 +1,13 @@
 import Koa from 'koa'
+import Router from '@koa/router'
 
 import { Server } from 'http'
+
+const router = new Router()
+
+router.get('/', (ctx, next) => {
+    ctx.body = 'Hello World From Router'
+})
 
 
 export default class DesksetNoteAPI {
@@ -9,10 +16,7 @@ export default class DesksetNoteAPI {
 
     constructor() {
         this.app = new Koa()
-
-        this.app.use(async (ctx: { body: string; }) => {
-            ctx.body = 'Hello World'
-        })
+        this.app.use(router.routes())
 
         this.listen = null
     }
