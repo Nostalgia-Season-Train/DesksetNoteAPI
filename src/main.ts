@@ -1,5 +1,9 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
+import DesksetNoteAPI from './api';
+
+const PORT = 8010
+
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -13,8 +17,14 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 
+	api: DesksetNoteAPI;
+
 	async onload() {
 		await this.loadSettings();
+
+		// 加载 API 服务器
+		this.api = new DesksetNoteAPI();
+		this.api.open(PORT);
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
@@ -79,7 +89,7 @@ export default class MyPlugin extends Plugin {
 	}
 
 	onunload() {
-
+		this.api.close();
 	}
 
 	async loadSettings() {
