@@ -1,1 +1,9 @@
 GET http://localhost:8010
+
+
+### Obsidian 当前笔记：打开的笔记
+GET http://localhost:8010/obsidian/current-note
+
+
+### Dataview 查询主页信息
+GET http://localhost:8010/dataview/page/主页

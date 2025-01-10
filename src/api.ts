@@ -1,29 +1,31 @@
 import Koa from 'koa'
-import Router from '@koa/router'
-
 import { Server } from 'http'
 
-const router = new Router()
+import { App } from 'obsidian'
 
-router.get('/', (ctx, next) => {
-    ctx.body = 'Hello World From Router'
-})
+import Obsidian from './router/obsidian'
+import routerDataview from './router/dataview'
 
 
 export default class DesksetNoteAPI {
-    app: Koa
+    app: App
+
+    server: Koa
     listen: Server | null
 
-    constructor() {
-        this.app = new Koa()
-        this.app.use(router.routes())
+    constructor(app: App) {
+        this.app = app
+
+        this.server = new Koa()
+        this.server.use((new Obsidian(this.app)).routes())
+        this.server.use(routerDataview.routes())
 
         this.listen = null
     }
 
     open(port: Number) {
         this.close()
-        this.listen = this.app.listen(port)
+        this.listen = this.server.listen(port)
     }
 
     close() {

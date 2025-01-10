@@ -23,7 +23,7 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 
 		// 加载 API 服务器
-		this.api = new DesksetNoteAPI();
+		this.api = new DesksetNoteAPI(this.app);
 		this.api.open(PORT);
 
 		// This creates an icon in the left ribbon.
