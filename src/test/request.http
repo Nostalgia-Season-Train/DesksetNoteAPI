@@ -5,5 +5,15 @@ GET http://localhost:8010
 GET http://localhost:8010/obsidian/current-note
 
 
+# === Dataview ===
+
 ### Dataview 查询主页信息
 GET http://localhost:8010/dataview/page/主页
+
+### Dataview 执行代码
+POST http://localhost:8010/dataview/query
+Content-Type: application/json
+
+{
+    "source": "LIST\nWHERE file.mtime >= date(now) - dur(1 day)\nSORT file.mtime desc"
+}

@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"id": "deskset-noteapi",
+	"name": "Deskset NoteAPI",
+	"version": "0.0.1a",
+	"minAppVersion": "1.5.12",
+	"description": "数字桌搭与 Obsidian 交互的 API",
+	"author": "Nostalgia-Season-Train",
+	"authorUrl": "https://github.com/Nostalgia-Season-Train/DigitalDeskSetup-NoteAPI",
+	"fundingUrl": "",
+	"isDesktopOnly": true
 }
