@@ -17,3 +17,9 @@ Content-Type: application/json
 {
     "source": "LIST\nWHERE file.mtime >= date(now) - dur(1 day)\nSORT file.mtime desc"
 }
+
+
+# ==== 日记 ====
+
+### 创建今日日记
+GET http://localhost:8010/diary/create-today

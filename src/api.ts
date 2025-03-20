@@ -5,6 +5,7 @@ import { App } from 'obsidian'
 
 import Obsidian from './router/obsidian'
 import routerDataview from './router/dataview'
+import { routerDiary } from './router/diary'
 
 
 export default class DesksetNoteAPI {
@@ -19,6 +20,7 @@ export default class DesksetNoteAPI {
         this.server = new Koa()
         this.server.use((new Obsidian(this.app)).routes())
         this.server.use(routerDataview.routes())
+        this.server.use(routerDiary.routes())
 
         this.listen = null
     }
