@@ -27,6 +27,7 @@
 	"dependencies": {
 		"@koa/bodyparser": "^5.1.1",
 		"@koa/router": "^13.1.0",
-		"koa": "^2.15.3"
+		"koa": "^2.15.3",
+		"obsidian-daily-notes-interface": "^0.9.4"
 	}
 }
