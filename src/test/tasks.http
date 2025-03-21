@@ -1,5 +1,5 @@
 ### 打印笔记中所有任务切换后字符串
-POST http://localhost:8010/tasks/toggle-tasks
+POST http://localhost:6528/tasks/toggle-tasks
 Content-Type: application/json
 
 {
@@ -8,7 +8,7 @@ Content-Type: application/json
 
 
 ### 返回所有任务
-POST http://localhost:8010/tasks/get-all-tasks
+POST http://localhost:6528/tasks/get-all-tasks
 Content-Type: application/json
 
 {

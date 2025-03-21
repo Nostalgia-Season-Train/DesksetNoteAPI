@@ -2,7 +2,7 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 import DesksetNoteAPI from './api';
 
-const PORT = 8010
+const PORT = 6528
 
 // Remember to rename these classes and interfaces!
 
