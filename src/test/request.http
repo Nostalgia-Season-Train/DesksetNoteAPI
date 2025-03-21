@@ -23,3 +23,6 @@ Content-Type: application/json
 
 ### 创建今日日记
 GET http://localhost:8010/diary/create-today
+
+### 读取今日日记
+GET http://localhost:8010/diary/read-today
