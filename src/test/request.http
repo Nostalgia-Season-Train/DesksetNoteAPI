@@ -1,17 +1,17 @@
-GET http://localhost:6528
+GET http://127.0.0.1:6528
 
 
 ### Obsidian 当前笔记：打开的笔记
-GET http://localhost:6528/obsidian/current-note
+GET http://127.0.0.1:6528/obsidian/current-note
 
 
 # === Dataview ===
 
 ### Dataview 查询主页信息
-GET http://localhost:6528/dataview/page/主页
+GET http://127.0.0.1:6528/dataview/page/主页
 
 ### Dataview 执行代码
-POST http://localhost:6528/dataview/query
+POST http://127.0.0.1:6528/dataview/query
 Content-Type: application/json
 
 {
@@ -22,7 +22,7 @@ Content-Type: application/json
 # ==== 日记 ====
 
 ### 创建今日日记
-GET http://localhost:6528/diary/create-today
+GET http://127.0.0.1:6528/diary/create-today
 
 ### 读取今日日记
-GET http://localhost:6528/diary/read-today
+GET http://127.0.0.1:6528/diary/read-today

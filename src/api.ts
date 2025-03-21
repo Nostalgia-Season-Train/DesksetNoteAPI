@@ -27,9 +27,9 @@ export default class DesksetNoteAPI {
         this.listen = null
     }
 
-    open(port: Number) {
+    open(host: string, port: number) {
         this.close()
-        this.listen = this.server.listen(port)
+        this.listen = this.server.listen({ host: host, port: port })
     }
 
     close() {

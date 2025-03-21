@@ -2,6 +2,7 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 import DesksetNoteAPI from './api';
 
+const HOST = '127.0.0.1'
 const PORT = 6528
 
 // Remember to rename these classes and interfaces!
@@ -24,7 +25,7 @@ export default class MyPlugin extends Plugin {
 
 		// 加载 API 服务器
 		this.api = new DesksetNoteAPI(this.app);
-		this.api.open(PORT);
+		this.api.open(HOST, PORT);
 	}
 
 	onunload() {
