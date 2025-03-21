@@ -32,6 +32,7 @@ export default class Tasks {
         // 路由注册
         this.router.use(bodyParser())  // post body 解析
         this.router.post('/toggle-tasks', this.toggleTasks)
+        this.router.post('/get-all-tasks', this.getAllTasks)
     }
 
     middleIsTasksEnable = async (ctx: any, next: any): Promise<void> => {
@@ -49,7 +50,7 @@ export default class Tasks {
     }
 
     toggleTasks = async (ctx: any, next: any): Promise<void> => {
-        const notepath = ctx.request.body.source  // 暂时不验证
+        const notepath = ctx.request.body.notepath  // 暂时不验证
 
         const tasks = this.dataviewApi.page(notepath).file.tasks.values
         for (const task of tasks) {
@@ -57,5 +58,22 @@ export default class Tasks {
             const taskStrAfterToggle = this.tasksApi.executeToggleTaskDoneCommand(taskStr, notepath)
             console.log(taskStrAfterToggle)
         }
+    }
+
+    getAllTasks = async (ctx: any, next: any): Promise<void> => {
+        const notepath = ctx.request.body.notepath
+
+        let tasksForRep: any = []
+
+        const tasks = this.dataviewApi.page(notepath).file.tasks.values
+        for (const task of tasks) {
+            tasksForRep.push({
+                line: task.line,  // 作为修改用的 ID
+                status: task.status,
+                text: task.text
+            })
+        }
+
+        ctx.body = tasksForRep
     }
 }
