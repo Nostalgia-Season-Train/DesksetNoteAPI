@@ -1,5 +1,6 @@
-GET http://127.0.0.1:6528
-
+# ==== Obsidian ====
+### Obsidian 当前仓库
+GET http://127.0.0.1:6528/obsidian/current-vault
 
 ### Obsidian 当前笔记：打开的笔记
 GET http://127.0.0.1:6528/obsidian/current-note
