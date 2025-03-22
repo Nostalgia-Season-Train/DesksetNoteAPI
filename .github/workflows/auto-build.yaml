@@ -1,0 +1,64 @@
+name: Deskset NoteAPI Auto Build
+
+
+on:
+  push:
+    tags:
+      # git tag -a v0.0.0  带注释的标签
+      # git push && git push --tags  连提交带标签一起推送
+        # PowerShell 用 git push; git push --tags
+      - 'v*.*.*'
+
+
+jobs:
+  release:
+    name: Build and Release
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      # PowerShell 通过 $env:VARIABLE 访问环境变量
+      DIST: "out/DesksetNoteAPI"
+
+    strategy:
+      matrix:
+        os: [windows-latest]
+
+    steps:
+    # 第一步：检出（下载）仓库
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # 第二步：安装 NodeJS
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    # 第三步：下载依赖
+    - name: Install Dependencies
+      run: |
+        npm install
+
+    # 第四步：构建插件，复制产物
+    - name: Build
+      run: |
+        npm run build
+        New-Item -ItemType Directory -Path $env:DIST
+        Copy-Item -Path "./main.js" -Destination "./$env:DIST/"
+        Copy-Item -Path "./manifest.json" -Destination "./$env:DIST/"
+
+    # 第五步：压缩目录
+      # ./$env:DIST/ 会连文件夹一起压缩，用 ./$env:DIST/* 只包含文件夹内容
+    - name: Zip
+      run: |
+        Compress-Archive -Path "./$env:DIST/*" -DestinationPath "./DesksetNoteAPI.zip" -CompressionLevel Optimal
+
+    # 第七步：发布
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: "DesksetNoteAPI.zip"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
