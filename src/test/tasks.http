@@ -14,3 +14,15 @@ Content-Type: application/json
 {
     "notepath": "_100-数字花园/收集/Python基础语法.md"
 }
+
+
+### 切换单个任务（效果等于左键复选框）
+POST http://127.0.0.1:6528/tasks/toggle-task
+Content-Type: application/json
+
+{
+    "line": 7,
+    "status": "x",
+    "text": "打印 Hello World",
+    "notepath": "_100-数字花园/收集/Python基础语法.md"
+}

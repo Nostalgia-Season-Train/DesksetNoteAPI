@@ -3,6 +3,7 @@ import { getAPI } from 'obsidian-dataview'
 import Router from '@koa/router'
 import { bodyParser } from '@koa/bodyparser'
 
+// 类型注解
 import { App } from 'obsidian'
 import { DataviewApi } from 'obsidian-dataview'
 
@@ -33,6 +34,7 @@ export default class Tasks {
         this.router.use(bodyParser())  // post body 解析
         this.router.post('/toggle-tasks', this.toggleTasks)
         this.router.post('/get-all-tasks', this.getAllTasks)
+        this.router.post('/toggle-task', this.toggleTask)
     }
 
     middleIsTasksEnable = async (ctx: any, next: any): Promise<void> => {
@@ -70,10 +72,29 @@ export default class Tasks {
             tasksForRep.push({
                 line: task.line,  // 作为修改用的 ID
                 status: task.status,
-                text: task.text
+                text: task.text.endsWith('\n') ? task.text.slice(0, -1) : task.text  // dataview 返回的 task.text 有时存在换行符
             })
         }
 
         ctx.body = tasksForRep
+    }
+
+    toggleTask = async (ctx: any, next: any): Promise<void> => {
+        const notepath = ctx.request.body.notepath
+        const line =  ctx.request.body.line
+        // status 和 text 确保是目标任务
+        const status = ctx.request.body.status
+        const text = ctx.request.body.text
+
+        let fileLines: string[] = (await this.app.vault.adapter.read(notepath)).split('\n')
+        let targetTaskStr: string = fileLines[line]
+        if (targetTaskStr == `- [${status}] ${text}`) {
+            targetTaskStr = this.tasksApi.executeToggleTaskDoneCommand(targetTaskStr, notepath)
+            fileLines[line] = targetTaskStr
+            await this.app.vault.adapter.write(notepath, fileLines.join('\n'))
+            ctx.body = 'task toggle complete'
+        } else {
+            ctx.body = `line ${line} task is ${targetTaskStr}`
+        }
     }
 }
