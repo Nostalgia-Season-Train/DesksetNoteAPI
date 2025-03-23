@@ -26,6 +26,7 @@ export default class Diary {
           // 注：有问题加上 bind(this) 例如 this.createToday.bind(this)
         this.router.get('/create-today', this.createToday)
         this.router.get('/read-today', this.readToday)
+        this.router.get('/read/:id*', this.read)
     }
 
     middleIsDailyNotesEnable = async (ctx: any, next: any): Promise<void> => {
@@ -62,6 +63,20 @@ export default class Diary {
             }
         } catch (error) {
             ctx.throw(500, error.stack, { expose: true })
+        }
+    }
+
+    read = async (ctx: any, next: any): Promise<void> => {
+        const id = ctx.params.id
+        const date = moment(id)
+
+        const diarys = getAllDailyNotes()
+        const todayDiary = getDailyNote(date, diarys)
+
+        ctx.body = {
+            id: id,
+            notepath: todayDiary.path,
+            content: await this.app.vault.read(todayDiary)
         }
     }
 }

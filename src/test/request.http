@@ -27,3 +27,6 @@ GET http://127.0.0.1:6528/diary/create-today
 
 ### 读取今日日记
 GET http://127.0.0.1:6528/diary/read-today
+
+### 读取某天日记（日期格式：YYYYMMDD）
+GET http://127.0.0.1:6528/diary/read/20250324
