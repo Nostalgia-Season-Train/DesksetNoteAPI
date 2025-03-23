@@ -26,3 +26,14 @@ Content-Type: application/json
     "text": "打印 Hello World",
     "notepath": "_100-数字花园/收集/Python基础语法.md"
 }
+
+
+### 添加任务
+POST http://127.0.0.1:6528/tasks/add-task
+Content-Type: application/json
+
+{
+    "status": " ",
+    "text": "新增任务",
+    "notepath": "_100-数字花园/收集/Python基础语法.md"
+}

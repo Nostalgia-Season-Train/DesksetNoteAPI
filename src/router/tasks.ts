@@ -1,3 +1,4 @@
+import { moment } from 'obsidian'
 import { getAPI } from 'obsidian-dataview'
 
 import Router from '@koa/router'
@@ -11,13 +12,17 @@ export default class Tasks {
     router: Router
     app: App
     tasksApi: any
+    tasksConf: any
     dataviewApi: DataviewApi
 
     constructor(app: App) {
         this.router = new Router({ prefix: '/tasks' })
         this.app = app
 
+        // 获取 tasks 接口 API、配置 Conf
         this.tasksApi = (this.app as any).plugins.plugins['obsidian-tasks-plugin'].apiV1
+        this.app.vault.adapter.read('.obsidian/plugins/obsidian-tasks-plugin/data.json')
+          .then(conf => this.tasksConf = JSON.parse(conf))
         this.dataviewApi = getAPI(app)
 
         if (this.tasksApi == undefined) {
@@ -35,6 +40,7 @@ export default class Tasks {
         this.router.post('/toggle-tasks', this.toggleTasks)
         this.router.post('/get-all-tasks', this.getAllTasks)
         this.router.post('/toggle-task', this.toggleTask)
+        this.router.post('/add-task', this.AddTask)
     }
 
     middleIsTasksEnable = async (ctx: any, next: any): Promise<void> => {
@@ -96,5 +102,26 @@ export default class Tasks {
         } else {
             ctx.body = `line ${line} task is ${targetTaskStr}`
         }
+    }
+
+    AddTask = async (ctx: any, next: any): Promise<void> => {
+        // 在 notepath 下，新增 - [status] text 任务
+        const notepath = ctx.request.body.notepath
+        const status = ctx.request.body.status
+        const text = ctx.request.body.text
+
+        // 是否添加创建日期
+        const isSetCreatedDate = this.tasksConf.setCreatedDate
+        const createdEmoji = '➕'  // 参考：https://publish.obsidian.md/tasks/Reference/Task+Formats/Tasks+Emoji+Format
+        const createdDate = moment().format('YYYY-MM-DD')
+
+        // 直接在笔记行尾加入 task（暂时）
+        let file = await this.app.vault.adapter.read(notepath)
+        if (isSetCreatedDate) {
+            file += `- [${status}] ${text} ${createdEmoji} ${createdDate}\n`
+        } else {
+            file += `- [${status}] ${text}\n`
+        }
+        this.app.vault.adapter.write(notepath, file)
     }
 }
