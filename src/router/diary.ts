@@ -50,9 +50,16 @@ export default class Diary {
 
     readToday = async (ctx: any, next: any): Promise<void> => {
         try {
+            const date = moment()
+
             const diarys = getAllDailyNotes()
-            const todayDiary = getDailyNote(moment(), diarys)
-            ctx.body = await this.app.vault.read(todayDiary)
+            const todayDiary = getDailyNote(date, diarys)
+
+            ctx.body = {
+                id: date.format('YYYYMMDD'),
+                notepath: todayDiary.path,
+                content: await this.app.vault.read(todayDiary)
+            }
         } catch (error) {
             ctx.throw(500, error.stack, { expose: true })
         }
