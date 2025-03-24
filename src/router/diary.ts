@@ -27,6 +27,7 @@ export default class Diary {
         this.router.get('/create-today', this.createToday)
         this.router.get('/read-today', this.readToday)
         this.router.get('/read/:id*', this.read)
+        this.router.get('/list-month/:month*', this.listMonth)
     }
 
     middleIsDailyNotesEnable = async (ctx: any, next: any): Promise<void> => {
@@ -78,5 +79,22 @@ export default class Diary {
             notepath: todayDiary.path,
             content: await this.app.vault.read(todayDiary)
         }
+    }
+
+    listMonth = async (ctx: any, next: any): Promise<void> => {
+        const month = ctx.params.month
+
+        // 直接生成 dateUID 查找，最多 31 次
+        const diarys = getAllDailyNotes()
+        let diarysInMonth = []
+        for (let num = 1; num <= moment(month).daysInMonth(); num++) {
+            const day = moment(month).date(num)
+            const diary = getDailyNote(day, diarys)
+            if (diary != undefined) {
+                diarysInMonth.push({ id: day, notepath: diary.path })
+            }
+        }
+
+        ctx.body = diarysInMonth
     }
 }
