@@ -10,14 +10,19 @@ import Router from '@koa/router'
 
 // 仅用来类型注解
 import { App } from 'obsidian'
+import Note from '../feature/note'
 
 export default class Diary {
     router: Router
     app: App
 
-    constructor(app: App) {
+    note: Note
+
+    constructor(app: App, note: Note) {
         this.router = new Router({ prefix: '/diary' })
         this.app = app
+
+        this.note = note
 
         // 中间件
         this.router.use(this.middleIsDailyNotesEnable)
@@ -48,6 +53,8 @@ export default class Diary {
         }
 
         createDailyNote(moment())
+
+        ctx.body = 'create diary success'
     }
 
     readToday = async (ctx: any, next: any): Promise<void> => {
@@ -56,6 +63,11 @@ export default class Diary {
 
             const diarys = getAllDailyNotes()
             const todayDiary = getDailyNote(date, diarys)
+
+            if (todayDiary == undefined) {
+                ctx.body = undefined
+                return
+            }
 
             ctx.body = {
                 id: date.format('YYYYMMDD'),
@@ -77,7 +89,8 @@ export default class Diary {
         ctx.body = {
             id: id,
             notepath: todayDiary.path,
-            content: await this.app.vault.read(todayDiary)
+            content: await this.app.vault.read(todayDiary),
+            tasks: await this.note.getAllTasks(todayDiary.path)
         }
     }
 
@@ -91,7 +104,12 @@ export default class Diary {
             const day = moment(month).date(num)
             const diary = getDailyNote(day, diarys)
             if (diary != undefined) {
-                diarysInMonth.push({ id: day, notepath: diary.path })
+                diarysInMonth.push({
+                    id: day.format('YYYYMMDD'),
+                    notepath: diary.path,
+                    content: await this.app.vault.read(diary),
+                    tasks: await this.note.getAllTasks(diary.path)
+                })
             }
         }
 
