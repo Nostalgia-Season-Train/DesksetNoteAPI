@@ -31,8 +31,8 @@ export default class Diary {
           // 注：有问题加上 bind(this) 例如 this.createToday.bind(this)
         this.router.get('/create-today', this.createToday)
         this.router.get('/read-today', this.readToday)
-        this.router.get('/read/:id*', this.read)
-        this.router.get('/list-month/:month*', this.listMonth)
+        this.router.get('/read-day/:day*', this.readDay)
+        this.router.get('/read-month/:month*', this.readMonth)
     }
 
     middleIsDailyNotesEnable = async (ctx: any, next: any): Promise<void> => {
@@ -79,22 +79,22 @@ export default class Diary {
         }
     }
 
-    read = async (ctx: any, next: any): Promise<void> => {
-        const id = ctx.params.id
-        const date = moment(id)
+    readDay = async (ctx: any, next: any): Promise<void> => {
+        const day = ctx.params.day
+        const date = moment(day)
 
         const diarys = getAllDailyNotes()
         const todayDiary = getDailyNote(date, diarys)
 
         ctx.body = {
-            id: id,
+            id: day,
             notepath: todayDiary.path,
             content: await this.app.vault.read(todayDiary),
             tasks: await this.note.getAllTasks(todayDiary.path)
         }
     }
 
-    listMonth = async (ctx: any, next: any): Promise<void> => {
+    readMonth = async (ctx: any, next: any): Promise<void> => {
         const month = ctx.params.month
 
         // 直接生成 dateUID 查找，最多 31 次
@@ -105,7 +105,7 @@ export default class Diary {
             const diary = getDailyNote(day, diarys)
             if (diary != undefined) {
                 diarysInMonth.push({
-                    id: day.format('YYYYMMDD'),
+                    id: day.format('YYYYMMDD'),  // 注意这个 day 是 Moment 不是上面那个 string
                     notepath: diary.path,
                     content: await this.app.vault.read(diary),
                     tasks: await this.note.getAllTasks(diary.path)
