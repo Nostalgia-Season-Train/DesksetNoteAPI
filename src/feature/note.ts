@@ -37,6 +37,7 @@ export default class Note {
 
         const tasks = this.dataviewApi.page(notepath).file.tasks.values
         for (const task of tasks) {
+            // 注：如果 tasks 插件没有提供接口，那么分析任务文本 task.text 中的语义化信息将交给后端，以避免 Obsidian 性能损耗
             tasksForRep.push({
                 line: task.line,  // 作为修改用的 ID
                 status: task.status,
