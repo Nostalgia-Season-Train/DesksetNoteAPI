@@ -13,6 +13,9 @@ export default class Note {
     dataviewApi: DataviewApi
     dataviewConf: object
 
+    // thinoApi: any  // Thino 没有提供 CRUD API
+    thinoConf: any
+
     constructor(app: App) {
         this.app = app
 
@@ -23,6 +26,9 @@ export default class Note {
         this.dataviewApi = getAPI(this.app)
         this.app.vault.adapter.read('.obsidian/plugins/dataview/data.json')
           .then(conf => this.dataviewConf = JSON.parse(conf))
+
+        this.app.vault.adapter.read('.obsidian/plugins/obsidian-memos/data.json')
+          .then(conf => this.thinoConf = JSON.parse(conf))
 
         if (this.tasksApi == undefined) {
             throw Error('Tasks not enable')
@@ -61,5 +67,30 @@ export default class Note {
         this.app.vault.adapter.write(notepath, fileLines.join('\n'))
 
         return true
+    }
+
+    getAllThinos = async (notepath: string): Promise<any> => {
+        const title = this.thinoConf.ProcessEntriesBelow  // Thino 所在标题
+        const format = this.thinoConf.DefaultTimePrefix   // Thino 时间前缀 HH:mm 或 HH:mm:ss
+        const file = await this.app.vault.adapter.read(notepath)
+
+        // 获取 Thino 所在标题下的文本 titleText
+        const titleRegex = new RegExp(`${title}\n([\\s\\S]*?)(?=\n#|\\Z)`)
+        const titleMatch = titleRegex.exec(file)
+        const titleText = titleMatch != null ? titleMatch[1].trim() : ''
+
+        // 获取 Thino
+        let thinos = []
+
+        const thinoRegex = format == 'HH:mm' ? /^- (\d{2}:\d{2}) (.+)$/gm : /^- (\d{2}:\d{2}:\d{2}) (.+)$/gm
+        let thinoMatch
+        while ((thinoMatch = thinoRegex.exec(titleText)) != null) {
+            thinos.push({
+                create: thinoMatch[1],
+                content: thinoMatch[2]
+            })
+        }
+
+        return thinos
     }
 }

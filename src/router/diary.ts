@@ -72,7 +72,9 @@ export default class Diary {
             ctx.body = {
                 id: date.format('YYYYMMDD'),
                 notepath: todayDiary.path,
-                content: await this.app.vault.read(todayDiary)
+                content: await this.app.vault.read(todayDiary),
+                thinos: await this.note.getAllThinos(todayDiary.path),
+                tasks: await this.note.getAllTasks(todayDiary.path)
             }
         } catch (error) {
             ctx.throw(500, error.stack, { expose: true })
@@ -84,13 +86,14 @@ export default class Diary {
         const date = moment(day)
 
         const diarys = getAllDailyNotes()
-        const todayDiary = getDailyNote(date, diarys)
+        const somedayDiary = getDailyNote(date, diarys)
 
         ctx.body = {
             id: day,
-            notepath: todayDiary.path,
-            content: await this.app.vault.read(todayDiary),
-            tasks: await this.note.getAllTasks(todayDiary.path)
+            notepath: somedayDiary.path,
+            content: await this.app.vault.read(somedayDiary),
+            thinos: await this.note.getAllThinos(somedayDiary.path),
+            tasks: await this.note.getAllTasks(somedayDiary.path)
         }
     }
 
