@@ -77,17 +77,18 @@ export default class Note {
         // 获取 Thino 所在标题下的文本 titleText
         const titleRegex = new RegExp(`${title}\n([\\s\\S]*?)(?=\n#|\\Z)`)
         const titleMatch = titleRegex.exec(file)
-        const titleText = titleMatch != null ? titleMatch[1].trim() : ''
+        // titleText 末尾加上换行符，方便下面 \n$ 正则匹配
+        const titleText = titleMatch != null ? titleMatch[1].trim() + '\n' : ''
 
         // 获取 Thino
         let thinos = []
 
-        const thinoRegex = format == 'HH:mm' ? /^- (\d{2}:\d{2}) (.+)$/gm : /^- (\d{2}:\d{2}:\d{2}) (.+)$/gm
+        const thinoRegex = format == 'HH:mm' ? /^- (\d{2}:\d{2}) ([\s\S]*?)(?=\n-|\n$)/gm : /^- (\d{2}:\d{2}:\d{2}) ([\s\S]*?)(?=\n-|\n$)/gm
         let thinoMatch
         while ((thinoMatch = thinoRegex.exec(titleText)) != null) {
             thinos.push({
-                create: thinoMatch[1],
-                content: thinoMatch[2]
+                create: thinoMatch[1].trim(),
+                content: thinoMatch[2].trim()
             })
         }
 
