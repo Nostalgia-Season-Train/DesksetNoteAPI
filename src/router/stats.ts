@@ -57,7 +57,8 @@ export default class Stats {
 
         // 热点 = { 日期, 当日创建和编辑笔记的数量 }
         let heats: Array<{ date: string, number: number }> = []
-        for (let date = start; date <= end; date++) {
+
+        for (let date = start; date <= end; date = Number(moment(date, 'YYYYMMDD').add(1, 'days').format('YYYYMMDD'))) {
             const number = ctimes.filter(ctime => ctime == date).length + mtimes.filter(mtime => mtime == date).length
             heats.push({ date: String(date), number: number })
         }
