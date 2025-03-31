@@ -1,0 +1,12 @@
+# ==== 统计信息 ====
+
+### 笔记总数
+GET http://127.0.0.1:6528/stats/note-number
+
+
+### 热力图（热点）
+GET http://127.0.0.1:6528/stats/heatmap/1
+
+
+### 仓库使用天数
+GET http://127.0.0.1:6528/stats/use-days
