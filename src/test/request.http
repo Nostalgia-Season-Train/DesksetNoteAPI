@@ -5,6 +5,9 @@ GET http://127.0.0.1:6528/obsidian/current-vault
 ### Obsidian 当前笔记：打开的笔记
 GET http://127.0.0.1:6528/obsidian/current-note
 
+### Obsidian 接口测试：Hello Obsidian
+GET http://127.0.0.1:6528/obsidian/hello
+
 
 # === Dataview ===
 

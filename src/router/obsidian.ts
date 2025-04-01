@@ -1,5 +1,5 @@
 /* Obsidian 本体交互 */
-import { App } from 'obsidian'
+import { App, moment } from 'obsidian'
 
 import Router from '@koa/router'
 
@@ -27,6 +27,10 @@ export default class Obsidian {
         this.router.get('/current-note', (ctx, next) => {
             const relpath = this.app.workspace.getActiveFile()?.path
             ctx.body = relpath || ''
+        })
+
+        this.router.get('/hello', (ctx, next) => {
+            console.log(moment().format('HH:mm:ss'), 'Hello Obsidian')
         })
     }
 
