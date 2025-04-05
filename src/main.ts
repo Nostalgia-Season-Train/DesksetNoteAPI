@@ -2,9 +2,6 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 import DesksetNoteAPI from './api';
 
-const HOST = '127.0.0.1'
-const PORT = 6528
-
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -18,17 +15,26 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 
+	config: any;
 	api: DesksetNoteAPI;
 
 	async onload() {
 		await this.loadSettings();
 
-		// 加载 API 服务器
+		// 读取配置
+		this.config = JSON.parse(await this.app.vault.adapter.read('.deskset/noteapi.json'));
+
+		// 加载 NoteAPI 服务器
 		this.api = new DesksetNoteAPI(this.app);
-		this.api.open(HOST, PORT);
+		this.api.open(this.config['noteapi-host'], this.config['noteapi-port']);
+
+		// NoteAPI 通知 Back 自身状态：上线/下线
+		await fetch(`http://${this.config['server-host']}:${this.config['server-port']}/v0/note/obsidian-manager/noteapi/online`);
+		this.app.workspace.on('quit', () => fetch(`http://${this.config['server-host']}:${this.config['server-port']}/v0/note/obsidian-manager/noteapi/offline`))
 	}
 
-	onunload() {
+	async onunload() {
+		await fetch(`http://${this.config['server-host']}:${this.config['server-port']}/v0/note/obsidian-manager/noteapi/offline`);
 		this.api.close();
 	}
 
