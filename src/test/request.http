@@ -11,6 +11,9 @@ GET http://127.0.0.1:6528/obsidian/hello
 ### Obsidian 所有笔记
 GET http://127.0.0.1:6528/obsidian/all-notes
 
+### Obsidian .obsidian/workspace.json 对象
+GET http://127.0.0.1:6528/obsidian/workspace
+
 
 # === Dataview ===
 

@@ -36,6 +36,10 @@ export default class Obsidian {
         this.router.get('/all-notes', async (ctx, next) => {
             ctx.body = this.app.vault.getMarkdownFiles().map(tfile => tfile.path.slice(0, -3))
         })
+
+        this.router.get('/workspace', async (ctx, next) => {
+            ctx.body = JSON.parse(await this.app.vault.adapter.read('.obsidian/workspace.json'))
+        })
     }
 
     public routes() {
