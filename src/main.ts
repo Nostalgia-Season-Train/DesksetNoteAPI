@@ -21,9 +21,29 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// 读取配置
-		this.config = JSON.parse(await this.app.vault.adapter.read('.deskset/noteapi.json'));
+		this.firstGetConfig()
+	}
 
+	// 第一步：读取配置
+	async firstGetConfig() {
+		try {
+			this.config = JSON.parse(await this.app.vault.adapter.read('.deskset/noteapi.json'))
+			this.secondStartNoteAPI()
+		} catch {
+			const checkConfigInterval = window.setInterval(async () => {
+				try {
+					this.config = JSON.parse(await this.app.vault.adapter.read('.deskset/noteapi.json'))
+					clearInterval(checkConfigInterval)
+					this.secondStartNoteAPI()
+				} catch {}
+			}, 5000)
+			this.registerInterval(checkConfigInterval)
+		}
+	}
+
+	// 第二步：启动 NoteAPI
+	async secondStartNoteAPI() {
+		console.log('启动 Deskset NoteAPI 服务')
 		// 加载 NoteAPI 服务器
 		this.api = new DesksetNoteAPI(this.app);
 		this.api.open(this.config['noteapi-host'], this.config['noteapi-port']);
@@ -34,6 +54,7 @@ export default class MyPlugin extends Plugin {
 	}
 
 	async onunload() {
+		if (this.config == undefined) { return }  // 配置读取失败，没有启动 NoteAPI 服务，直接返回
 		await fetch(`http://${this.config['server-host']}:${this.config['server-port']}/v0/note/obsidian-manager/noteapi/offline`);
 		this.api.close();
 	}
