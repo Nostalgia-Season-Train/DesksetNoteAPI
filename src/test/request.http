@@ -8,6 +8,9 @@ GET http://127.0.0.1:6528/obsidian/current-note
 ### Obsidian 接口测试：Hello Obsidian
 GET http://127.0.0.1:6528/obsidian/hello
 
+### Obsidian 所有笔记
+GET http://127.0.0.1:6528/obsidian/all-notes
+
 
 # === Dataview ===
 

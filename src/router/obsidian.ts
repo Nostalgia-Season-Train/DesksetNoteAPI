@@ -32,6 +32,10 @@ export default class Obsidian {
         this.router.get('/hello', (ctx, next) => {
             console.log(moment().format('HH:mm:ss'), 'Hello Obsidian')
         })
+
+        this.router.get('/all-notes', async (ctx, next) => {
+            ctx.body = this.app.vault.getMarkdownFiles().map(tfile => tfile.path)
+        })
     }
 
     public routes() {
