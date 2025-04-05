@@ -34,7 +34,7 @@ export default class Obsidian {
         })
 
         this.router.get('/all-notes', async (ctx, next) => {
-            ctx.body = this.app.vault.getMarkdownFiles().map(tfile => tfile.path)
+            ctx.body = this.app.vault.getMarkdownFiles().map(tfile => tfile.path.slice(0, -3))
         })
     }
 
