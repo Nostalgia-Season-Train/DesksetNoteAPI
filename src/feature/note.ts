@@ -75,7 +75,7 @@ export default class Note {
         const file = await this.app.vault.adapter.read(notepath)
 
         // 获取 Thino 所在标题下的文本 titleText
-        const titleRegex = new RegExp(`${title}\n([\\s\\S]*?)(?=\n#|\\Z)`)
+        const titleRegex = new RegExp(`${title}\n([\\s\\S]*?)(?=\n#|$)`)
         const titleMatch = titleRegex.exec(file)
         // titleText 末尾加上换行符，方便下面 \n$ 正则匹配
         const titleText = titleMatch != null ? titleMatch[1].trim() + '\n' : ''
