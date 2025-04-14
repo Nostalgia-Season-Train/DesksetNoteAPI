@@ -29,6 +29,7 @@ export default class Stats {
         this.router.get('/note-number', this.note_number)
         this.router.get('/heatmap/:weeknum', this.heatmap)
         this.router.get('/use-days', this.use_days)
+        this.router.get('/recent-edit', this.recent_edit)
     }
 
     // 笔记总数
@@ -71,5 +72,23 @@ export default class Stats {
     use_days = async (ctx: any, next: any): Promise<void> => {
         const vault_create = '20240921'
         ctx.body = moment().diff(moment(vault_create, 'YYYYMMDD'), 'days')
+    }
+
+    // 最近编辑的十篇笔记
+    recent_edit = async (ctx: any, next: any): Promise<void> => {
+      const results = await this.dataviewApi.query('LIST\nFROM ""\nSORT file.mtime DESC\nLIMIT 10')
+      if (results.successful != true) {
+        ctx.throw(500, 'Dataview query fail', { expose: true })
+        return
+      }
+
+      ctx.body = results.value.values.map((r: any) => {
+        delete r.display
+        delete r.embed
+        delete r.subpath
+        delete r.type
+        r.mtime = moment(this.dataviewApi.page(r.path).file.mtime.ts).format('YYYYMMDDHHmmss')  // 注意传入 ts，不然 HHmmss 错误
+        return r
+      })
     }
 }
