@@ -2,18 +2,16 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 import DesksetNoteAPI from './api';
 
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
+interface DesksetPluginSettings {
 	mySetting: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: DesksetPluginSettings = {
 	mySetting: 'default'
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class DesksetPlugin extends Plugin {
+	settings: DesksetPluginSettings;
 
 	config: any;
 	api: DesksetNoteAPI;
@@ -68,26 +66,10 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
+class DesksetPluginSettingTab extends PluginSettingTab {
+	plugin: DesksetPlugin;
 
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: DesksetPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
