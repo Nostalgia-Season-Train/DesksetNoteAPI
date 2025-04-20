@@ -1,0 +1,17 @@
+### Back 登入
+POST http://127.0.0.1:6528/unify/login-in
+Content-Type: application/x-www-form-urlencoded
+
+&username=noteapi-user
+&password=noteapi-pswd
+&backaddress=127.0.0.1:6527
+&backtoken=
+
+
+### Back 登出
+POST http://127.0.0.1:6528/unify/login-out
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer
+
+&backaddress=127.0.0.1:6527
+&backtoken=

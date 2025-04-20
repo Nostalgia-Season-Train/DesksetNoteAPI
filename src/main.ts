@@ -1,15 +1,14 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
+import { DesksetPluginSetting as DesksetPluginSettings } from './core/setting'
+import { randomString } from './core/random'
 import DesksetNoteAPI from './api';
-
-interface DesksetPluginSettings {
-	host: string
-	port: number
-}
 
 const DEFAULT_SETTINGS: DesksetPluginSettings = {
 	host: '127.0.0.1',
-	port: 6528
+	port: 6528,
+	username: 'noteapi-user' + randomString(5, 10),
+	password: 'noteapi-pswd' + randomString(10, 20)
 }
 
 export default class DesksetPlugin extends Plugin {
@@ -21,14 +20,17 @@ export default class DesksetPlugin extends Plugin {
 		await this.loadSettings()
 		this.addSettingTab(new DesksetPluginSettingTab(this.app, this))
 
-		this.api = new DesksetNoteAPI(this.app)
+		this.api = new DesksetNoteAPI(this.app, this.settings)
 		this.api.open(this.settings.host, this.settings.port)
+		this.app.workspace.on('quit', async () => { if (this.api != undefined) await this.api.close() })
 	}
 
 	async onunload() {
+		await this.saveSettings()
+
 		if (this.api == undefined)
 			return
-		this.api.close()
+		await this.api.close()
 		delete this.api
 	}
 
