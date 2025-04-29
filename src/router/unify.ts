@@ -16,6 +16,7 @@ export default class Unify {
     router: Router
     app: App
     setting: Setting
+    private _address: string
     private _token: string
 
     // 下线状态：is_init = false、backinfo == null
@@ -38,6 +39,7 @@ export default class Unify {
           .use(bodyParser())
         this.app = app
         this.setting = setting
+        this._address = `${this.setting.host}:${this.setting.port}`
         this._token = randomString(50, 75)
 
         this._is_init = false
@@ -70,7 +72,7 @@ export default class Unify {
             const rep = await fetch(`http://${address}/v0/note/obsidian-manager/noteapi/online`, {
                 method: 'POST',
                 headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ token: this._token })
+                body: new URLSearchParams({ address: this._address, token: this._token })
             })
             if ((await rep.json())?.success != true) return Error('Fail to request DesksecBack')  // 请求失败
         } catch {
@@ -86,7 +88,9 @@ export default class Unify {
 
         try {
             await fetch(`http://${this._backinfo?.address}/v0/note/obsidian-manager/noteapi/offline`, {
-                headers: { 'Authorization': 'Bearer ' + this._backinfo?.token }
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + this._backinfo?.token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ address: this._address, token: this._token })
             })
         } catch {
             // 不用处理，连接失败本身就会切换回下线
