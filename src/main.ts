@@ -21,7 +21,7 @@ export default class DesksetPlugin extends Plugin {
 		this.addSettingTab(new DesksetPluginSettingTab(this.app, this))
 
 		this.api = new DesksetNoteAPI(this.app, this.settings)
-		this.api.open(this.settings.host, this.settings.port)
+		this.api.open()
 		this.app.workspace.on('quit', async () => { if (this.api != undefined) await this.api.close() })
 	}
 

@@ -28,7 +28,7 @@ export default class DesksetNoteAPI {
 
     constructor(app: App, setting: Setting) {
         this.app = app
-        this.setting = setting
+        this.setting = structuredClone(setting)  // 深拷贝确保不随外部 setting 更改
 
         this.note = new Note(this.app)
 
@@ -58,11 +58,12 @@ export default class DesksetNoteAPI {
         await next()
     }
 
-    async open(host: string, port: number) {
+    async open() {
         if (this.listen != null)
             throw Error('NoteAPI Server already open')
 
-        this.listen = this.server.listen({ host: host, port: port })
+        this.listen = this.server.listen({ host: this.setting.host, port: this.setting.port })
+        console.log(`NoteAPI open on ${this.setting.host}:${this.setting.port}`)
     }
 
     async close() {
@@ -73,5 +74,6 @@ export default class DesksetNoteAPI {
 
         this.listen.close()
         this.listen = null
+        console.log(`NoteAPI close on ${this.setting.host}:${this.setting.port}`)
     }
 }

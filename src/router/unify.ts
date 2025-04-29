@@ -81,6 +81,7 @@ export default class Unify {
 
         this._backinfo = { address: address, token: token }
         this._is_init = true
+        console.log('NoteAPI %conline', 'color: green;', `for ${this._backinfo.address}`)
     }
 
     async goOffline(): Promise<void | Error> {
@@ -96,6 +97,7 @@ export default class Unify {
             // 不用处理，连接失败本身就会切换回下线
         }
 
+        console.log('NoteAPI %coffline', 'color: red;', `for ${this._backinfo?.address}`)
         this._backinfo = null
         this._is_init = false
     }
