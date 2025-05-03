@@ -54,10 +54,10 @@ export default class Unify {
         if (ENABLE_CHECK) {
             // 检查初始化
             if (!this._is_init)
-                ctx.throw(500, 'Not Init', { expose: true })
+                ctx.throw(403, 'Not Init', { expose: true })
             // 检查密钥
             if (ctx.headers.authorization != 'Bearer ' + this._token)
-                ctx.throw(400, 'Invalid token')
+                ctx.throw(403, 'Invalid token')
         }
         await next()
     }
@@ -69,37 +69,39 @@ export default class Unify {
         if (this._is_init) return Error('NoteAPI already online')  // 已经上线
 
         try {
-            const rep = await fetch(`http://${address}/v0/note/obsidian-manager/noteapi/online`, {
+            const data = await (await fetch(`http://${address}/v0/note/obsidian-manager/noteapi/online`, {
                 method: 'POST',
                 headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ address: this._address, token: this._token })
-            })
-            if ((await rep.json())?.success != true) return Error('Fail to request DesksecBack')  // 请求失败
-        } catch {
-            return Error('Fail to connect DesksecBack')  // 连接失败
+            })).json()
+            if (data?.success != true) return Error(`Online Fail. From Back Response Error: ${data?.message}`)
+        } catch (error) {
+            return Error(`Online Fail. From Back Connect Error: ${error}`)
         }
 
         this._backinfo = { address: address, token: token }
         this._is_init = true
-        console.log('NoteAPI %conline', 'color: green;', `for ${this._backinfo.address}`)
+        console.log('NoteAPI %conline', 'color: green;', `for ${this._backinfo.address} address and ${this._backinfo.token.slice(0, 5)} token`)
     }
 
     async goOffline(): Promise<void | Error> {
         if (!this._is_init) return Error('NoteAPI already offline')  // 已经下线
 
         try {
-            await fetch(`http://${this._backinfo?.address}/v0/note/obsidian-manager/noteapi/offline`, {
+            const data = await (await fetch(`http://${this._backinfo?.address}/v0/note/obsidian-manager/noteapi/offline`, {
                 method: 'POST',
                 headers: { 'Authorization': 'Bearer ' + this._backinfo?.token, 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ address: this._address, token: this._token })
-            })
-        } catch {
-            // 不用处理，连接失败本身就会切换回下线
+            })).json()
+            if (data?.success != true) return Error(`Offline with From Back Response Error: ${data?.message}`)
+        } catch (error) {
+            return Error(`Offline with From Back Connect Error: ${error}`)
+        } finally {
+            // 请求和连接失败，也会切换回下线状态
+            console.log('NoteAPI %coffline', 'color: red;', `for ${this._backinfo?.address} address and ${this._backinfo?.token.slice(0, 5)} token`)
+            this._backinfo = null
+            this._is_init = false
         }
-
-        console.log('NoteAPI %coffline', 'color: red;', `for ${this._backinfo?.address}`)
-        this._backinfo = null
-        this._is_init = false
     }
 
 
@@ -117,7 +119,7 @@ export default class Unify {
         if (transfer_result instanceof Error)
             ctx.throw(500, transfer_result, { expose: true })
 
-        ctx.body = 'success'
+        ctx.body = 'Online Success'
     }
 
     private _loginOut = async (ctx: any, next: any) => {
@@ -130,6 +132,6 @@ export default class Unify {
         if (transfer_result instanceof Error)
             ctx.throw(500, transfer_result, { expose: true })
 
-        ctx.body = 'success'
+        ctx.body = 'Offline Success'
     }
 }
