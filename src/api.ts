@@ -41,7 +41,7 @@ export default class DesksetNoteAPI {
         /* 统一认证&初始化 */
         this.unify = new Unify(this.app, this.setting)
         this.server.use(this.unify.router.routes())
-        this.server.use(this.unify.check)
+        this.server.use(this.unify.check.bind(this.unify))  // 这里也要 bind...
 
         /* 路由 */
         this.server.use((new Obsidian(this.app)).routes())
