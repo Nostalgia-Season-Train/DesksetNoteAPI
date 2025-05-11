@@ -8,7 +8,7 @@ const ENABLE_CHECK = true  // 启用检查：检查初始化和密钥
 
 
 /* ==== 类型注解 ==== */
-import { App } from 'obsidian'
+import { App, FileSystemAdapter } from 'obsidian'
 import { DesksetPluginSetting as Setting } from '../core/setting'
 
 
@@ -69,10 +69,15 @@ export default class Unify {
         if (this._is_init) return Error('NoteAPI already online')  // 已经上线
 
         try {
+            const adapter = this.app.vault.adapter as FileSystemAdapter
             const data = await (await fetch(`http://${address}/v0/note/obsidian-manager/noteapi/online`, {
                 method: 'POST',
                 headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ address: this._address, token: this._token })
+                body: new URLSearchParams({
+                    address: this._address,
+                    token: this._token,
+                    vault: adapter.getBasePath()
+                })
             })).json()
             if (data?.success != true) return Error(`Online Fail. From Back Response Error: ${data?.message}`)
         } catch (error) {
