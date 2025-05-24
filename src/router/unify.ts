@@ -19,20 +19,7 @@ export default class Unify {
     private _address: string
     private _token: string
 
-    // 下线状态：is_init = false、backinfo == null
-    // 上线状态：is_init = true 、backinfo != null
-
-    // 状态：下线 => 上线
-      // 1、Back login 登入 NoteAPI，同时传递自身 address 和 token
-
-    // 状态：上线 => 下线
-      // 1、Back login 登出 NoteAPI
-      // 2、api close 端口
-      // 3、任意一次连接 Back 失败
-
-    // 注：登出 backinfo 需跟登入一致，否则登出失败
-    private _is_init: boolean
-    private _backinfo: { address: string, token: string } | null
+    private _ws_event: WebSocket | null
 
     constructor(app: App, setting: Setting) {
         this.router = new Router({ prefix: '/unify' })
@@ -42,75 +29,20 @@ export default class Unify {
         this._address = `${this.setting.host}:${this.setting.port}`
         this._token = randomString(50, 75)
 
-        this._is_init = false
-        this._backinfo = null
+        this._ws_event = null
 
         this.router.post('/login-in', this._loginIn)
         this.router.use(this.check.bind(this))  // bind 让 check 中的 this 指向自身
-        this.router.post('/login-out', this._loginOut)
     }
 
     async check(ctx: any, next: any) {
         if (ENABLE_CHECK) {
-            // 检查初始化
-            if (!this._is_init)
-                ctx.throw(403, 'Not Init', { expose: true })
             // 检查密钥
             if (ctx.headers.authorization != 'Bearer ' + this._token)
                 ctx.throw(403, 'Invalid token')
         }
         await next()
     }
-
-
-    /* --- 上线下线 --- */
-
-    async goOnline(address: string, token: string): Promise<void | Error> {
-        if (this._is_init) return Error('NoteAPI already online')  // 已经上线
-
-        try {
-            const adapter = this.app.vault.adapter as FileSystemAdapter
-            const data = await (await fetch(`http://${address}/v0/note/obsidian-manager/noteapi/online`, {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    address: this._address,
-                    token: this._token,
-                    vault: adapter.getBasePath()
-                })
-            })).json()
-            if (data?.success != true) return Error(`Online Fail. From Back Response Error: ${data?.message}`)
-        } catch (error) {
-            return Error(`Online Fail. From Back Connect Error: ${error}`)
-        }
-
-        this._backinfo = { address: address, token: token }
-        this._is_init = true
-        console.log('NoteAPI %conline', 'color: green;', `for ${this._backinfo.address} address and ${this._backinfo.token.slice(0, 5)} token`)
-    }
-
-    async goOffline(): Promise<void | Error> {
-        if (!this._is_init) return Error('NoteAPI already offline')  // 已经下线
-
-        try {
-            const data = await (await fetch(`http://${this._backinfo?.address}/v0/note/obsidian-manager/noteapi/offline`, {
-                method: 'POST',
-                headers: { 'Authorization': 'Bearer ' + this._backinfo?.token, 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ address: this._address, token: this._token })
-            })).json()
-            if (data?.success != true) return Error(`Offline with From Back Response Error: ${data?.message}`)
-        } catch (error) {
-            return Error(`Offline with From Back Connect Error: ${error}`)
-        } finally {
-            // 请求和连接失败，也会切换回下线状态
-            console.log('NoteAPI %coffline', 'color: red;', `for ${this._backinfo?.address} address and ${this._backinfo?.token.slice(0, 5)} token`)
-            this._backinfo = null
-            this._is_init = false
-        }
-    }
-
-
-    /* --- 登入登出 --- */
 
     private _loginIn = async (ctx: any, next: any) => {
         const username = ctx.request.body.username
@@ -120,23 +52,43 @@ export default class Unify {
 
         const address = ctx.request.body.backaddress
         const token = ctx.request.body.backtoken
-        const transfer_result = await this.goOnline(address, token)
-        if (transfer_result instanceof Error)
-            ctx.throw(500, transfer_result, { expose: true })
+        if (this._ws_event?.readyState == WebSocket.OPEN)
+            ctx.throw(500, 'ws-event already init', { expose: true })
 
-        ctx.body = 'Online Success'
+        this._ws_event = new WebSocket(`ws://${address}/v0/note/obsidian-manager/ws-event`)
+
+        // 上线
+          // 必须保证第一个发送，初始化 Back 中的 NoteAPI
+        this._ws_event.onopen = () => {
+            this._ws_event?.send(JSON.stringify({
+                address: this._address,
+                token: this._token,
+                path: (this.app.vault.adapter as FileSystemAdapter).getBasePath(),
+                setting: this.setting
+            }))
+            console.log('NoteAPI %conline', 'color: green;', `for '${address}' address and '${token}' token`)
+        }
+
+        // 下线
+          // api.close 关闭时清理顺序 ws_event.close() => listen.close() => ws_event.onclose()
+            // 确保 ws_event.close() 在 listen.close() 之前就行
+        this._ws_event.onclose = () => {
+            this._ws_event = null
+            console.log('NoteAPI %coffline', 'color: red;', `for '${address}' address and '${token}' token`)
+        }
+
+        // 出错
+        this._ws_event.onerror = () => {
+            this._ws_event = null
+            console.log('ws-event error')
+        }
+
+        ctx.body = 'Receive'  // WebSocket 没有连接成功的 Promise...
     }
 
-    private _loginOut = async (ctx: any, next: any) => {
-        const address = ctx.request.body.backaddress
-        const token = ctx.request.body.backtoken
-        if (this._backinfo?.address != address || this._backinfo?.token != token)
-            ctx.throw(500, 'Different backinfo', { expose: true })
-
-        const transfer_result = await this.goOffline()
-        if (transfer_result instanceof Error)
-            ctx.throw(500, transfer_result, { expose: true })
-
-        ctx.body = 'Offline Success'
+    async offline() {
+        if (this._ws_event?.readyState != WebSocket.OPEN)
+            return
+        this._ws_event.close()
     }
 }

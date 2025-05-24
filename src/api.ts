@@ -70,7 +70,7 @@ export default class DesksetNoteAPI {
         if (this.listen == null)
             throw Error('NoteAPI Server already close')
 
-        await this.unify.goOffline()
+        await this.unify.offline()
 
         this.listen.close()
         this.listen = null
