@@ -73,6 +73,10 @@ export default class Unify {
           // api.close 关闭时清理顺序 ws_event.close() => listen.close() => ws_event.onclose()
             // 确保 ws_event.close() 在 listen.close() 之前就行
         this._ws_event.onclose = () => {
+            // 过滤初始化失败（先后触发 onerror => onclose）
+            if (this._ws_event == null)
+                return
+
             this._ws_event = null
             console.log('NoteAPI %coffline', 'color: red;', `for '${address}' address and '${token}' token`)
         }
