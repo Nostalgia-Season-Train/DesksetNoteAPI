@@ -8,7 +8,12 @@ const DEFAULT_SETTINGS: DesksetPluginSettings = {
 	host: '127.0.0.1',
 	port: 6528,
 	username: 'noteapi-user' + randomString(5, 10),
-	password: 'noteapi-pswd' + randomString(10, 20)
+	password: 'noteapi-pswd' + randomString(10, 20),
+	profile: {
+		avatar: '',
+		name: '数字桌搭',
+		bio: '数字桌搭，在桌面栽培灵感，让创意随时开花'
+	}
 }
 
 export default class DesksetPlugin extends Plugin {
