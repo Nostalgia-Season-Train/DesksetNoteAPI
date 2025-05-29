@@ -55,7 +55,7 @@ export default class Unify {
         if (this._ws_event?.readyState == WebSocket.OPEN)
             ctx.throw(500, 'ws-event already init', { expose: true })
 
-        this._ws_event = new WebSocket(`ws://${address}/v0/note/obsidian-manager/ws-event`)
+        this._ws_event = new WebSocket(`ws://${address}/v0/note/obsidian-manager/ws-event`, ['Authorization', `bearer-${token}`])
 
         // 上线
           // 必须保证第一个发送，初始化 Back 中的 NoteAPI
