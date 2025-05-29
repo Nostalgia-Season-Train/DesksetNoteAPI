@@ -21,12 +21,12 @@ export default class Unify {
 
     private _ws_event: WebSocket | null
 
-    constructor(app: App, setting: Setting) {
+    constructor(app: App, setting: Setting, address: string) {
         this.router = new Router({ prefix: '/unify' })
           .use(bodyParser())
         this.app = app
         this.setting = setting
-        this._address = `${this.setting.host}:${this.setting.port}`
+        this._address = address
         this._token = randomString(50, 75)
 
         this._ws_event = null

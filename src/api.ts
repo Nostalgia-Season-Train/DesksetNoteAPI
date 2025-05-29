@@ -23,23 +23,29 @@ export default class DesksetNoteAPI {
 
     server: Koa
     listen: Server | null
+    host: string
+    port: number
+    address: string
 
     unify: Unify
 
     constructor(app: App, setting: Setting) {
         this.app = app
-        this.setting = structuredClone(setting)  // 深拷贝确保不随外部 setting 更改
+        this.setting = setting  // 对 setting 的引用，因为 Unify 也会修改并保存 setting
 
         this.note = new Note(this.app)
 
         this.server = new Koa()
         this.listen = null
+        this.host = this.setting.host
+        this.port = this.setting.port
+        this.address = `${this.host}:${this.port}`
 
         /* 仅允许本机 127.0.0.1 访问 */
         this.server.use(this.check_127host)
 
         /* 统一认证&初始化 */
-        this.unify = new Unify(this.app, this.setting)
+        this.unify = new Unify(this.app, this.setting, this.address)
         this.server.use(this.unify.router.routes())
         this.server.use(this.unify.check.bind(this.unify))  // 这里也要 bind...
 
@@ -62,8 +68,8 @@ export default class DesksetNoteAPI {
         if (this.listen != null)
             throw Error('NoteAPI Server already open')
 
-        this.listen = this.server.listen({ host: this.setting.host, port: this.setting.port })
-        console.log(`NoteAPI open on ${this.setting.host}:${this.setting.port}`)
+        this.listen = this.server.listen({ host: this.host, port: this.port })
+        console.log(`NoteAPI open on ${this.host}:${this.port}`)
     }
 
     async close() {
@@ -74,6 +80,6 @@ export default class DesksetNoteAPI {
 
         this.listen.close()
         this.listen = null
-        console.log(`NoteAPI close on ${this.setting.host}:${this.setting.port}`)
+        console.log(`NoteAPI close on ${this.host}:${this.port}`)
     }
 }
