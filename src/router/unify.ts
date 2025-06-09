@@ -8,7 +8,7 @@ const ENABLE_CHECK = true  // 启用检查：检查初始化和密钥
 
 
 /* ==== 类型注解 ==== */
-import { App, FileSystemAdapter } from 'obsidian'
+import { App, Plugin, FileSystemAdapter } from 'obsidian'
 import { DesksetPluginSetting as Setting } from '../core/setting'
 
 
@@ -16,16 +16,20 @@ export default class Unify {
     router: Router
     app: App
     setting: Setting
+    plugin: Plugin
+
     private _address: string
     private _token: string
 
     private _ws_event: WebSocket | null
 
-    constructor(app: App, setting: Setting, address: string) {
+    constructor(app: App, setting: Setting, plugin: Plugin, address: string) {
         this.router = new Router({ prefix: '/unify' })
           .use(bodyParser())
         this.app = app
         this.setting = setting
+        this.plugin = plugin
+
         this._address = address
         this._token = randomString(50, 75)
 
@@ -33,6 +37,17 @@ export default class Unify {
 
         this.router.post('/login-in', this._loginIn)
         this.router.use(this.check.bind(this))  // bind 让 check 中的 this 指向自身
+
+
+        /* ==== 设置更改 ==== */
+
+        // 问候语
+        this.router.post('/setting/greets', async (ctx: any, next: any) => {
+            const greets = ctx.request.body
+            this.setting.greets = greets
+            this.plugin.saveData(this.setting)
+            ctx.body = 'Change Setting Success'  // DesksetBack 检查状态码 200 即可
+        })
     }
 
     async check(ctx: any, next: any) {

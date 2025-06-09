@@ -15,3 +15,20 @@ Authorization: Bearer
 
 &backaddress=127.0.0.1:6527
 &backtoken=
+
+
+
+# ==== 设置更改 =====
+  # 注意：没有数据校验，不要直接使用！
+
+### 问候语
+POST http://127.0.0.1:6528/unify/setting/greets
+Content-Type: application/json
+
+[{
+    "id": "20250610000000000000",
+    "start": "0600",
+    "end": "1200",
+    "open": "早上好",
+    "content": "今天也是元气满满的一天！"
+}]

@@ -1,7 +1,7 @@
 import Koa from 'koa'
 import { Server } from 'http'
 
-import { App } from 'obsidian'
+import { App, Plugin } from 'obsidian'
 import { DesksetPluginSetting as Setting } from './core/setting'
 
 import Unify from './router/unify'
@@ -18,6 +18,7 @@ import Stats from './router/stats'
 export default class DesksetNoteAPI {
     app: App
     setting: Setting
+    plugin: Plugin
 
     note: Note
 
@@ -29,9 +30,10 @@ export default class DesksetNoteAPI {
 
     unify: Unify
 
-    constructor(app: App, setting: Setting) {
+    constructor(app: App, setting: Setting, plugin: Plugin) {
         this.app = app
         this.setting = setting  // 对 setting 的引用，因为 Unify 也会修改并保存 setting
+        this.plugin = plugin
 
         this.note = new Note(this.app)
 
@@ -45,7 +47,7 @@ export default class DesksetNoteAPI {
         this.server.use(this.check_127host)
 
         /* 统一认证&初始化 */
-        this.unify = new Unify(this.app, this.setting, this.address)
+        this.unify = new Unify(this.app, this.setting, this.plugin, this.address)
         this.server.use(this.unify.router.routes())
         this.server.use(this.unify.check.bind(this.unify))  // 这里也要 bind...
 
