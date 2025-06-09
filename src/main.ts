@@ -15,10 +15,10 @@ const DEFAULT_SETTINGS: DesksetPluginSettings = {
 		bio: '数字桌搭，在桌面栽培灵感，让创意随时开花'
 	},
 	greets: [
-		{ start: '0600', end: '1200', open: '早上好', content: '今天也是元气满满的一天！' },
-		{ start: '1200', end: '1800', open: '下午好', content: '一杯绿茶如何？' },
-		{ start: '1800', end: '2400', open: '晚上好', content: '是时候休息了' },
-		{ start: '0000', end: '0600', open: '夜深了', content: '忘记工作，睡觉去吧~' }
+		{ id: '20250610000000000000', start: '0600', end: '1200', open: '早上好', content: '今天也是元气满满的一天！' },
+		{ id: '20250610000000000001', start: '1200', end: '1800', open: '下午好', content: '一杯绿茶如何？' },
+		{ id: '20250610000000000002', start: '1800', end: '2400', open: '晚上好', content: '是时候休息了' },
+		{ id: '20250610000000000003', start: '0000', end: '0600', open: '夜深了', content: '忘记工作，睡觉去吧~' }
 	]
 }
 
