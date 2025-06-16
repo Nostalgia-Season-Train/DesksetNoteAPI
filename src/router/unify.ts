@@ -20,6 +20,8 @@ export default class Unify {
 
     private _address: string
     private _token: string
+    private _username: string
+    private _password: string
 
     private _ws_event: WebSocket | null
 
@@ -32,6 +34,8 @@ export default class Unify {
 
         this._address = address
         this._token = randomString(50, 75)
+        this._username = this.setting.username
+        this._password = this.setting.password
 
         this._ws_event = null
 
@@ -62,7 +66,7 @@ export default class Unify {
     private _loginIn = async (ctx: any, next: any) => {
         const username = ctx.request.body.username
         const password = ctx.request.body.password
-        if (username != this.setting.username || password != this.setting.password)
+        if (username != this._username || password != this._password)
             ctx.throw(400, 'Incorrect username or password')
 
         const address = ctx.request.body.backaddress

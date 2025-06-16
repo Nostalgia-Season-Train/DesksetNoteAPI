@@ -75,5 +75,23 @@ class DesksetPluginSettingTab extends PluginSettingTab {
 					this.plugin.settings.port = Number(value)
 					await this.plugin.saveSettings()
 				}));
+
+		new Setting(containerEl)
+			.setName('用户名')
+			.addText(text => text
+				.setValue(String(this.plugin.settings.username))
+				.onChange(async (value) => {
+					this.plugin.settings.username = String(value)
+					await this.plugin.saveSettings()
+				}));
+
+		new Setting(containerEl)
+			.setName('密码')
+			.addText(text => text
+				.setValue(String(this.plugin.settings.password))
+				.onChange(async (value) => {
+					this.plugin.settings.password = String(value)
+					await this.plugin.saveSettings()
+				}));
 	}
 }
