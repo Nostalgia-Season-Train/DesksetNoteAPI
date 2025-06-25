@@ -14,6 +14,8 @@ import Diary from './router/diary'
 import Tasks from './router/tasks'
 import Stats from './router/stats'
 
+import RpcServer from './rpc'
+
 
 export default class DesksetNoteAPI {
     app: App
@@ -29,6 +31,9 @@ export default class DesksetNoteAPI {
     address: string
 
     unify: Unify
+
+    websocket: WebSocket | null
+    rpc: RpcServer | null
 
     constructor(app: App, setting: Setting, plugin: Plugin) {
         this.app = app
@@ -72,6 +77,10 @@ export default class DesksetNoteAPI {
 
         this.listen = this.server.listen({ host: this.host, port: this.port })
         console.log(`NoteAPI open on ${this.host}:${this.port}`)
+
+        // - [ ] 临时：RPC 测试
+        this.websocket = new WebSocket('ws://127.0.0.1:6527/v0/note/obsidian-manager/rpc')
+        this.rpc = new RpcServer(this.websocket)
     }
 
     async close() {
@@ -83,5 +92,10 @@ export default class DesksetNoteAPI {
         this.listen.close()
         this.listen = null
         console.log(`NoteAPI close on ${this.host}:${this.port}`)
+
+        // - [ ] 临时：RPC 测试
+        this.websocket?.close()
+        this.websocket = null
+        this.rpc = null
     }
 }
