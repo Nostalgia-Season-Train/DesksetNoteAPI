@@ -8,41 +8,31 @@ const DEFAULT_SETTINGS: DesksetPluginSettings = {
 	host: '127.0.0.1',
 	port: 6528,
 	username: 'noteapi-user' + randomString(5, 10),
-	password: 'noteapi-pswd' + randomString(10, 20),
-	profile: {
-		avatar: '',
-		name: '数字桌搭',
-		bio: '数字桌搭，在桌面栽培灵感，让创意随时开花'
-	},
-	greets: [
-		{ id: '20250610000000000000', start: '0600', end: '1200', open: '早上好', content: '今天也是元气满满的一天！' },
-		{ id: '20250610000000000001', start: '1200', end: '1800', open: '下午好', content: '一杯绿茶如何？' },
-		{ id: '20250610000000000002', start: '1800', end: '2400', open: '晚上好', content: '是时候休息了' },
-		{ id: '20250610000000000003', start: '0000', end: '0600', open: '夜深了', content: '忘记工作，睡觉去吧~' }
-	]
+	password: 'noteapi-pswd' + randomString(10, 20)
 }
 
 export default class DesksetPlugin extends Plugin {
 	settings: DesksetPluginSettings
 
-	api: DesksetNoteAPI | undefined  // 初始化失败 undefined
+	api: DesksetNoteAPI
 
 	async onload() {
 		await this.loadSettings()
 		this.addSettingTab(new DesksetPluginSettingTab(this.app, this))
 
 		this.api = new DesksetNoteAPI(this.app, this.settings, this)
-		this.api.open()
-		this.app.workspace.on('quit', async () => { if (this.api != undefined) await this.api.close() })
+		this.app.workspace.on('quit', async () => await this.api.close())
+
+		try { this.api.open() } catch {}
+		this.registerInterval(window.setInterval(() => {
+			try { this.api.open() } catch {}
+		}, 10 * 1000))
 	}
 
 	async onunload() {
 		await this.saveSettings()
 
-		if (this.api == undefined)
-			return
 		await this.api.close()
-		delete this.api
 	}
 
 	/* --- 设置读写 --- */

@@ -1,101 +1,74 @@
-import Koa from 'koa'
-import { Server } from 'http'
-
-import { App, Plugin } from 'obsidian'
+import { App, Plugin, request } from 'obsidian'
 import { DesksetPluginSetting as Setting } from './core/setting'
 
-import Unify from './router/unify'
-
 import Note from './feature/note'
-
-import Obsidian from './router/obsidian'
-import routerDataview from './router/dataview'
-import Diary from './router/diary'
-import Tasks from './router/tasks'
-import Stats from './router/stats'
 
 import RpcServer from './rpc'
 
 
 export default class DesksetNoteAPI {
-    app: App
-    setting: Setting
-    plugin: Plugin
+    private _app: App
+    private _setting: Setting
+    private _plugin: Plugin
 
-    note: Note
+    private _note: Note
 
-    server: Koa
-    listen: Server | null
-    host: string
-    port: number
-    address: string
-
-    unify: Unify
-
-    websocket: WebSocket | null
-    rpc: RpcServer | null
+    private _address: string
+    private _notetoken: string
+    private _websocket: WebSocket | null
+    private _rpc: RpcServer | null
 
     constructor(app: App, setting: Setting, plugin: Plugin) {
-        this.app = app
-        this.setting = setting  // 对 setting 的引用，因为 Unify 也会修改并保存 setting
-        this.plugin = plugin
+        this._app = app
+        this._setting = setting  // 对 setting 的引用，因为 Unify 也会修改并保存 setting
+        this._plugin = plugin
 
-        this.note = new Note(this.app)
+        this._note = new Note(this._app)
 
-        this.server = new Koa()
-        this.listen = null
-        this.host = this.setting.host
-        this.port = this.setting.port
-        this.address = `${this.host}:${this.port}`
+        this._address = `${this._setting.host}:${this._setting.port}`
+        this._notetoken = ''
 
-        /* 仅允许本机 127.0.0.1 访问 */
-        this.server.use(this.check_127host)
-
-        /* 统一认证&初始化 */
-        this.unify = new Unify(this.app, this.setting, this.plugin, this.address)
-        this.server.use(this.unify.router.routes())
-        this.server.use(this.unify.check.bind(this.unify))  // 这里也要 bind...
-
-        /* 路由 */
-        this.server.use((new Obsidian(this.app)).routes())
-        this.server.use(routerDataview.routes())
-        this.server.use((new Diary(this.app, this.note)).router.routes())
-        this.server.use((new Tasks(this.app)).router.routes())
-        this.server.use((new Stats(this.app)).router.routes())
-    }
-
-    check_127host = async (ctx: any, next: any): Promise<void> => {
-        if (ctx.req.socket.remoteAddress != '127.0.0.1') {
-            ctx.throw(403, 'Access denied. Only requests from 127.0.0.1 are allowed.')
-        }
-        await next()
+        this._websocket = null
+        this._rpc = null
     }
 
     async open() {
-        if (this.listen != null)
-            throw Error('NoteAPI Server already open')
+        if (this._websocket != null)
+            return
 
-        this.listen = this.server.listen({ host: this.host, port: this.port })
-        console.log(`NoteAPI open on ${this.host}:${this.port}`)
+        // 初始化
+        this._notetoken = (await request({
+            url: `http:${this._setting.host}:${this._setting.port}/v0/access/note/login`,
+            method: 'post',
+            contentType: 'application/x-www-form-urlencoded',
+            body: new URLSearchParams({
+                username: this._setting.username,
+                password: this._setting.password
+            }).toString()
+        })).slice(1, -1)  // 去掉字符串双引号...
+        this._websocket = new WebSocket(
+            `ws://${this._setting.host}:${this._setting.port}/v0/note/obsidian-manager/rpc`,
+            ['Authorization', `bearer-${this._notetoken}`]
+        )
+        this._rpc = new RpcServer(this._websocket)
+        console.log('NoteAPI %conline', 'color: green;', `for '${this._address}' address and '${this._notetoken}' token`)
 
-        // - [ ] 临时：RPC 测试
-        this.websocket = new WebSocket('ws://127.0.0.1:6527/v0/note/obsidian-manager/rpc')
-        this.rpc = new RpcServer(this.websocket)
+        // 退出事件：连接关闭、连接失败
+        this._websocket.onclose = async () => {
+            await this.close()
+        }
+        this._websocket.onerror = async () => {
+            await this.close()
+        }
     }
 
     async close() {
-        if (this.listen == null)
-            throw Error('NoteAPI Server already close')
+        if (this._websocket == null)
+            return
 
-        await this.unify.offline()
-
-        this.listen.close()
-        this.listen = null
-        console.log(`NoteAPI close on ${this.host}:${this.port}`)
-
-        // - [ ] 临时：RPC 测试
-        this.websocket?.close()
-        this.websocket = null
-        this.rpc = null
+        this._websocket.close()
+        this._websocket = null
+        this._rpc = null
+        console.log('NoteAPI %coffline', 'color: red;', `for '${this._address}' address and '${this._notetoken}' token`)
     }
 }
