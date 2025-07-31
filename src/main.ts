@@ -23,9 +23,9 @@ export default class DesksetPlugin extends Plugin {
 		this.api = new DesksetNoteAPI(this.app, this.settings, this)
 		this.app.workspace.on('quit', async () => await this.api.close())
 
-		try { this.api.open() } catch {}
-		this.registerInterval(window.setInterval(() => {
-			try { this.api.open() } catch {}
+		try { await this.api.open() } catch {}
+		this.registerInterval(window.setInterval(async () => {
+			try { await this.api.open() } catch {}
 		}, 10 * 1000))
 	}
 
