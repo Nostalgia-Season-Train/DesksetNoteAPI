@@ -44,7 +44,10 @@ export default class DesksetNoteAPI {
             body: new URLSearchParams({
                 username: this._setting.username,
                 password: this._setting.password
-            }).toString()
+            }).toString(),
+            headers: {
+                'Sec-Deskset-NoteAPI': 'PNA'
+            }
         })).slice(1, -1)  // 去掉字符串双引号...
         this._websocket = new WebSocket(
             `ws://${this._setting.host}:${this._setting.port}/v0/note/obsidian-manager/rpc`,
