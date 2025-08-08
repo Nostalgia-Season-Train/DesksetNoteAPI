@@ -56,7 +56,7 @@ export default class DesksetNoteAPI {
             `ws://${this._setting.host}:${this._setting.port}/v0/note/obsidian-manager/rpc`,
             ['Authorization', `bearer-${this._notetoken}`]
         )
-        this._rpc = new RpcServer(this._websocket, this._unify)
+        this._rpc = new RpcServer(this._websocket, this._unify, this._app, this._plugin)
         console.log('NoteAPI %conline', 'color: green;', `for '${this._address}' address and '${this._notetoken}' token`)
 
         // 退出事件：连接关闭、连接失败

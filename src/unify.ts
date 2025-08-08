@@ -18,4 +18,9 @@ export default class Unify {
     get_note_number = async (): Promise<number> => {
         return this._dataviewApi.pages().length
     }
+
+    // 获取活跃文件（当前聚焦的标签页）
+    get_active_file = async (): Promise<string> => {
+        return this._app.workspace.getActiveFile()?.path ?? ''
+    }
 }
