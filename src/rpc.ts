@@ -1,7 +1,13 @@
 export default class RpcServer {
     private _websocket: WebSocket
+    private _instance: any
 
-    constructor(websocket: WebSocket) {
+    constructor(
+        websocket: WebSocket,
+        instance: any
+    ) {
+        this._instance = instance
+
         this._websocket = websocket
         this._websocket.onmessage = this.onRecevie.bind(this)
     }
@@ -11,7 +17,7 @@ export default class RpcServer {
 
         let result, error
         try {
-            result = await (this as any)[request.procedure](...request.args)
+            result = await this._instance[request.procedure](...request.args)
         } catch (err) {
             error = err
         }

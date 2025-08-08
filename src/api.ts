@@ -2,6 +2,7 @@ import { App, Plugin, request } from 'obsidian'
 import { DesksetPluginSetting as Setting } from './core/setting'
 
 import Note from './feature/note'
+import Unify from './unify'
 
 import RpcServer from './rpc'
 
@@ -12,6 +13,7 @@ export default class DesksetNoteAPI {
     private _plugin: Plugin
 
     private _note: Note
+    private _unify: Unify
 
     private _address: string
     private _notetoken: string
@@ -24,6 +26,7 @@ export default class DesksetNoteAPI {
         this._plugin = plugin
 
         this._note = new Note(this._app)
+        this._unify = new Unify(this._app)
 
         this._address = `${this._setting.host}:${this._setting.port}`
         this._notetoken = ''
@@ -53,7 +56,7 @@ export default class DesksetNoteAPI {
             `ws://${this._setting.host}:${this._setting.port}/v0/note/obsidian-manager/rpc`,
             ['Authorization', `bearer-${this._notetoken}`]
         )
-        this._rpc = new RpcServer(this._websocket)
+        this._rpc = new RpcServer(this._websocket, this._unify)
         console.log('NoteAPI %conline', 'color: green;', `for '${this._address}' address and '${this._notetoken}' token`)
 
         // 退出事件：连接关闭、连接失败
