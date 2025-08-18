@@ -6,6 +6,8 @@ import Unify from './unify'
 
 import RpcServer from './rpc'
 
+import { Notice } from 'obsidian'
+
 
 export default class DesksetNoteAPI {
     private _app: App
@@ -66,6 +68,9 @@ export default class DesksetNoteAPI {
         this._websocket.onerror = async () => {
             await this.close()
         }
+
+        // 发出通知，提醒用户连接成功
+        new Notice('成功连接数字桌搭')
     }
 
     async close() {
