@@ -28,6 +28,14 @@ export default class Unify {
         return num
     }
 
+    // 获取仓库使用天数
+    get_useday_number = async (): Promise<number> => {
+        // @ts-ignore
+        const oldestNote = this._dataviewApi.pages().file.sort(file => file.cday)[0]  // 比较 cday 而不是 ctime 节省性能
+        // @ts-ignore
+        return Math.floor([new Date() - oldestNote.ctime] / (60 * 60 * 24 * 1000))
+    }
+
     // 获取活跃文件（当前聚焦的标签页）
     get_active_file = async (): Promise<string> => {
         return this._app.workspace.getActiveFile()?.path ?? ''
