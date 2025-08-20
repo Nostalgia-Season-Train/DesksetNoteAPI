@@ -19,6 +19,15 @@ export default class Unify {
         return this._dataviewApi.pages().length
     }
 
+    // 获取附件总数
+    get_attachment_number = async (): Promise<number> => {
+        let num = 0
+        for (const file of this._app.vault.getFiles()) {
+            if (file.extension != 'md') num++
+        }
+        return num
+    }
+
     // 获取活跃文件（当前聚焦的标签页）
     get_active_file = async (): Promise<string> => {
         return this._app.workspace.getActiveFile()?.path ?? ''
