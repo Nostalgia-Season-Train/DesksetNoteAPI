@@ -1,7 +1,6 @@
 import { App, Plugin, request } from 'obsidian'
 import { DesksetPluginSetting as Setting } from './core/setting'
 
-import Note from './feature/note'
 import Unify from './unify'
 
 import RpcServer from './rpc'
@@ -14,7 +13,6 @@ export default class DesksetNoteAPI {
     private _setting: Setting
     private _plugin: Plugin
 
-    private _note: Note
     private _unify: Unify
 
     private _address: string
@@ -27,12 +25,10 @@ export default class DesksetNoteAPI {
         this._setting = setting  // 对 setting 的引用，因为 Unify 也会修改并保存 setting
         this._plugin = plugin
 
-        this._note = new Note(this._app)
         this._unify = new Unify(this._app)
 
         this._address = `${this._setting.host}:${this._setting.port}`
         this._notetoken = ''
-
         this._websocket = null
         this._rpc = null
     }
