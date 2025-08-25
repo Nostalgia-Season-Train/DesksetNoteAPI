@@ -20,6 +20,7 @@ export default class RpcServer {
         this._websocket.onmessage = this.onRecevie.bind(this)
 
         // 注册 Obsidian 事件
+          // - [ ] 问题：如果从 DesksetBack 断开连接，不会移除监听器
         this._plugin.registerEvent(this._app.workspace.on('active-leaf-change', () => {
             this._websocket.send(
                 JSON.stringify({

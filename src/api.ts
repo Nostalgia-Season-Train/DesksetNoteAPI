@@ -70,8 +70,11 @@ export default class DesksetNoteAPI {
     }
 
     async close() {
-        if (this._websocket == null)
+        if (this._websocket == null) {
+            // Obsidian 终止连接：close > _websocket.close/onclose > close 重复调用
+            // DesksetBack 终止连接：_websocket.onclose > close > _websocket.close 已经关闭，不再触发 _websocket.onclose
             return
+        }
 
         this._websocket.close()
         this._websocket = null
