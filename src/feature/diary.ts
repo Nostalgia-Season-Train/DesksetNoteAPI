@@ -1,6 +1,7 @@
 // 代码参考：https://github.com/liamcain/obsidian-daily-notes-interface
 import { App, moment } from 'obsidian'
 
+const DAYID_FORMAT = 'YYYYMMDD'  // 某天 ID：格式 YYYYMMDD
 const NOTE_EXTENSION = 'md'
 const DEFAULT_DIARY_FORMAT = 'YYYY-MM-DD'
 
@@ -25,6 +26,13 @@ export default class Diary {
         const now = moment()
         const { format, folder } = await this._getDiarySetting()
         const path = `${folder}/${now.format(format)}.${NOTE_EXTENSION}`
+        return this._app.vault.getFileByPath(path)
+    }
+
+    getDiary = async (dayid: string) => {
+        const day = moment(dayid, DAYID_FORMAT)
+        const { format, folder } = await this._getDiarySetting()
+        const path = `${folder}/${day.format(format)}.${NOTE_EXTENSION}`
         return this._app.vault.getFileByPath(path)
     }
 }
