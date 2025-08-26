@@ -65,6 +65,9 @@ export default class DesksetNoteAPI {
             await this.close()
         }
 
+        // 注册事件监听
+        await this._rpc.listen()
+
         // 发出通知，提醒用户连接成功
         new Notice('成功连接数字桌搭')
     }
@@ -76,9 +79,10 @@ export default class DesksetNoteAPI {
             return
         }
 
+        await this._rpc?.unlisten()
+        this._rpc = null
         this._websocket.close()
         this._websocket = null
-        this._rpc = null
         console.log('NoteAPI %coffline', 'color: red;', `for '${this._address}' address and '${this._notetoken}' token`)
     }
 }
