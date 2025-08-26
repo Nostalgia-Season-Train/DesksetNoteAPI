@@ -1,12 +1,14 @@
 import { App, moment } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
+import Diary from './feature/diary'
 import Suggest from './feature/suggest'
 
 export default class Unify {
     private _app: App
     private _dataviewApi: DataviewApi
 
+    private _diary: Diary
     private _suggest: Suggest
 
     constructor(app: App) {
@@ -17,6 +19,7 @@ export default class Unify {
             throw Error('Dataview not enable')
         }
 
+        this._diary = new Diary(this._app)
         this._suggest = new Suggest(this._app)
     }
 
@@ -86,5 +89,21 @@ export default class Unify {
                 path: item.file.path
             }
         }).filter(item => item != null)
+    }
+
+
+    /* ==== 日记 ==== */
+    read_today_diary = async () => {
+        const diary = await this._diary.getTodayDiary()
+        if (diary == null)
+            return null  // Python 解析为 None
+        return await this._app.vault.read(diary)
+    }
+
+    read_diary = async (dayid: string) => {
+        const diary = await this._diary.getDiary(dayid)
+        if (diary == null)
+            return null
+        return await this._app.vault.read(diary)
     }
 }
