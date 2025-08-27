@@ -106,4 +106,8 @@ export default class Unify {
             return null
         return await this._app.vault.read(diary)
     }
+
+    list_diarys_in_a_month = async (monthid: string) => {
+        return await this._diary.listDiaryInMonth(monthid)
+    }
 }
