@@ -46,23 +46,4 @@ export default class RpcServer {
     helloworld = async () => {
         return 'helloworld'
     }
-
-    listen = async () => {
-        // 两种注销方式：
-          // 被动注销：通过 registerEvent 在插件卸载时被动注销
-          // 主动注销：调用 unlisten 主动注销
-        this._plugin.registerEvent(this._app.workspace.on('active-leaf-change', this._callback_active_leaf_change))
-    }
-
-    unlisten = async () => {
-        this._app.workspace.off('active-leaf-change', this._callback_active_leaf_change)
-    }
-
-    private _callback_active_leaf_change = async () => {
-        this._websocket.send(JSON.stringify({
-            datetime: moment().toISOString(true),
-            event: 'active-leaf-change',
-            value: null
-        }))
-    }
 }

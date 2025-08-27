@@ -1,4 +1,4 @@
-import { App, Plugin, request } from 'obsidian'
+import { App, Plugin, request, moment } from 'obsidian'
 import { DesksetPluginSetting as Setting } from './core/setting'
 
 import Unify from './unify'
@@ -31,6 +31,14 @@ export default class DesksetNoteAPI {
         this._notetoken = ''
         this._websocket = null
         this._rpc = null
+
+        // 注册事件监听
+          // 其他地方注册的监听器，断开连接后可能继续发送消息
+        this._app.workspace.on('active-leaf-change', async () => this._websocket?.send(JSON.stringify({
+            datetime: moment().toISOString(true),
+            event: 'active-leaf-change',
+            value: null
+        })))
     }
 
     async open() {
@@ -65,9 +73,6 @@ export default class DesksetNoteAPI {
             await this.close()
         }
 
-        // 注册事件监听
-        await this._rpc.listen()
-
         // 发出通知，提醒用户连接成功
         new Notice('成功连接数字桌搭')
     }
@@ -79,7 +84,6 @@ export default class DesksetNoteAPI {
             return
         }
 
-        await this._rpc?.unlisten()
         this._rpc = null
         this._websocket.close()
         this._websocket = null
