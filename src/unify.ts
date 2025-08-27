@@ -120,4 +120,13 @@ export default class Unify {
         await this._window.fullscreen()
         return null  // rpc 接收不到 void 返回
     }
+
+    open_in_obsidian = async (path: string) => {
+        const tfile = this._app.vault.getFileByPath(path)
+        if (tfile != null) {
+            await this._app.workspace.getLeaf(true).openFile(tfile)
+            await this._window.fullscreen()
+        }
+        return null
+    }
 }
