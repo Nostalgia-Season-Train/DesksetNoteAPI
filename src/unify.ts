@@ -3,6 +3,7 @@ import { DataviewApi, getAPI } from 'obsidian-dataview'
 
 import Window from './feature/window'
 import Diary from './feature/diary'
+import Task from './feature/task'
 import Suggest from './feature/suggest'
 
 export default class Unify {
@@ -11,6 +12,7 @@ export default class Unify {
 
     private _window: Window
     private _diary: Diary
+    private _task: Task
     private _suggest: Suggest
 
     constructor(app: App) {
@@ -23,6 +25,7 @@ export default class Unify {
 
         this._window = new Window()
         this._diary = new Diary(this._app)
+        this._task = new Task(this._app)
         this._suggest = new Suggest(this._app)
     }
 
@@ -100,14 +103,20 @@ export default class Unify {
         const diary = await this._diary.getTodayDiary()
         if (diary == null)
             return null  // Python 解析为 None
-        return await this._app.vault.read(diary)
+        return {
+            content: await this._app.vault.read(diary),
+            tasks: await this._task.getAllTasks(diary.path) ?? []
+        }
     }
 
     read_diary = async (dayid: string) => {
         const diary = await this._diary.getDiary(dayid)
         if (diary == null)
             return null
-        return await this._app.vault.read(diary)
+        return {
+            content: await this._app.vault.read(diary),
+            tasks: await this._task.getAllTasks(diary.path) ?? []
+        }
     }
 
     list_diarys_in_a_month = async (monthid: string) => {
