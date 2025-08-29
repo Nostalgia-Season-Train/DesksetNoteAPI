@@ -138,4 +138,66 @@ export default class Unify {
         }
         return null
     }
+
+
+    /* ==== 数据分析 ==== */
+    private _compare_string = (type: string, str1: string, str2: string) => {
+        switch (type) {
+            case 'is':
+                return str1 == str2
+            case 'startsWith':
+                return str1.startsWith(str2)
+            case 'endsWith':
+                return str1.endsWith(str2)
+            case 'contains':
+                return str1.contains(str2)
+            default:
+                return false
+        }
+    }
+
+    filter_frontmatter = async (filters: {
+        type: string,            // 比较类型：is、startsWith、endsWith、contains、isEmpty
+        isInvert: boolean,       // 是否取反比较结果
+        frontmatterKey: string,  // 要比较的属性
+        compareValue: string     // 要比较的值
+    }[]) => {
+        let pages = []
+
+        // 行为明确：filters 若为空数组返回 所有笔记
+        if (filters.length == 0)
+            pages = this._dataviewApi.pages()
+        else
+            pages = this._dataviewApi.pages().filter((page: any) => {
+                return filters.every(filter => {
+                    const { type, isInvert, frontmatterKey, compareValue } = filter
+                    // 行为明确：frontmatterKey 若为空字符串返回 false
+                    if (frontmatterKey == '')
+                        return false
+
+                    // isInvert != Boolean：取反 Boolean
+                    const frontmatterValue = page.file.frontmatter[frontmatterKey]
+                    if (frontmatterValue == undefined) {
+                        if (type == 'isEmpty')
+                            return isInvert != true
+                        return isInvert != false
+                    }
+
+                    // String(frontmatterValue)：有时 frontmatterValue 不是 string 类型
+                    return isInvert != this._compare_string(type, String(frontmatterValue), compareValue)
+                })
+            })
+
+        return pages.map((page: any) => {
+            return {
+                name: page.file.name,
+                path: page.file.path,
+                ctime: page.file.ctime,
+                mtime: page.file.mtime,
+                aliases: page.file.aliases.values,
+                tags: page.file.tags.values,
+                frontmatter: page.file.frontmatter
+            }
+        }).values
+    }
 }
