@@ -198,6 +198,15 @@ export default class Unify {
                 tags: page.file.tags.values,
                 frontmatter: page.file.frontmatter
             }
-        }).values
+        }).values as any[]
+    }
+
+    filter_frontmatter_number = async (filters: {
+        type: string,
+        isInvert: boolean,
+        frontmatterKey: string,
+        compareValue: string
+    }[]) => {
+        return (await this.filter_frontmatter(filters)).length
     }
 }
