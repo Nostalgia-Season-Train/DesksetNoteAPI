@@ -6,6 +6,17 @@ import Diary from './feature/diary'
 import Task from './feature/task'
 import Suggest from './feature/suggest'
 
+type Filter = {
+    type: string,            // 比较类型：is、startsWith、endsWith、contains、isEmpty
+    isInvert: boolean,       // 是否取反比较结果
+    frontmatterKey: string,  // 要比较的属性
+    compareValue: string     // 要比较的值
+}
+type FilterGroup = {
+    match: string,  // 匹配规则：匹配所有 all、匹配任意 any
+    filters: Array<Filter | FilterGroup>
+}
+
 export default class Unify {
     private _app: App
     private _dataviewApi: DataviewApi
@@ -141,7 +152,7 @@ export default class Unify {
 
 
     /* ==== 数据分析 ==== */
-    private _compare_string = (type: string, str1: string, str2: string) => {
+    private _compare_string = async (type: string, str1: string, str2: string) => {
         switch (type) {
             case 'is':
                 return str1 == str2
@@ -156,57 +167,51 @@ export default class Unify {
         }
     }
 
-    filter_frontmatter = async (filters: {
-        type: string,            // 比较类型：is、startsWith、endsWith、contains、isEmpty
-        isInvert: boolean,       // 是否取反比较结果
-        frontmatterKey: string,  // 要比较的属性
-        compareValue: string     // 要比较的值
-    }[]) => {
-        let pages = []
+    private _filter_file = async (file: any, filterGroup: FilterGroup): Promise<boolean> => {
+        const { match, filters } = filterGroup
 
-        // 行为明确：filters 若为空数组返回 所有笔记
+        // 行为明确：filters 若为空数组返回 真
         if (filters.length == 0)
-            pages = this._dataviewApi.pages()
-        else
-            pages = this._dataviewApi.pages().filter((page: any) => {
-                return filters.every(filter => {
-                    const { type, isInvert, frontmatterKey, compareValue } = filter
-                    // 行为明确：frontmatterKey 若为空字符串返回 false
-                    if (frontmatterKey == '')
-                        return false
+            return true
 
-                    // isInvert != Boolean：取反 Boolean
-                    const frontmatterValue = page.file.frontmatter[frontmatterKey]
-                    if (frontmatterValue == undefined) {
-                        if (type == 'isEmpty')
-                            return isInvert != true
-                        return isInvert != false
-                    }
+        const results = await Promise.all(filters.map(async filter => {
+            if ((filter as any)?.match == undefined) {
+                const { type, isInvert, frontmatterKey, compareValue } = filter as Filter
+                // 行为明确：frontmatterKey 若为空字符串返回 false
+                if (frontmatterKey == '')
+                    return false
 
-                    // String(frontmatterValue)：有时 frontmatterValue 不是 string 类型
-                    return isInvert != this._compare_string(type, String(frontmatterValue), compareValue)
-                })
-            })
+                // isInvert != Boolean：取反 Boolean
+                const frontmatterValue = file.frontmatter[frontmatterKey]
+                if (frontmatterValue == undefined) {
+                    if (type == 'isEmpty')
+                        return isInvert != true
+                    return isInvert != false
+                }
 
-        return pages.map((page: any) => {
-            return {
-                name: page.file.name,
-                path: page.file.path,
-                ctime: page.file.ctime,
-                mtime: page.file.mtime,
-                aliases: page.file.aliases.values,
-                tags: page.file.tags.values,
-                frontmatter: page.file.frontmatter
+                // String(frontmatterValue)：有时 frontmatterValue 不是 string 类型
+                return isInvert != await this._compare_string(type, String(frontmatterValue), compareValue)
+            } else {
+                return await this._filter_file(file, filter as FilterGroup)
             }
-        }).values as any[]
+        }))
+
+        if (match == 'all')
+            return results.every(result => result)
+        else
+            return results.some(result => result)
     }
 
-    filter_frontmatter_number = async (filters: {
-        type: string,
-        isInvert: boolean,
-        frontmatterKey: string,
-        compareValue: string
-    }[]) => {
-        return (await this.filter_frontmatter(filters)).length
+    filter_frontmatter = async (filterGroup: FilterGroup) => {
+        let pages = []
+        for (const page of this._dataviewApi.pages()) {
+            if (await this._filter_file(page.file, filterGroup))
+                pages.push(page)
+        }
+        return pages
+    }
+
+    filter_frontmatter_number = async (filterGroup: FilterGroup) => {
+        return (await this.filter_frontmatter(filterGroup)).length
     }
 }
