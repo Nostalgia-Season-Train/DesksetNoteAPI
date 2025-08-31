@@ -182,7 +182,8 @@ export default class Unify {
                     return false
 
                 // isInvert != Boolean：取反 Boolean
-                const frontmatterValue = file.frontmatter[frontmatterKey]
+                // toLowerCase() 不区分大小写，需要提前将 file.frontmatter 中的键全部转换成小写
+                const frontmatterValue = file.frontmatter[frontmatterKey.toLowerCase()]
                 if (frontmatterValue == undefined) {
                     if (type == 'isEmpty')
                         return isInvert != true
@@ -204,10 +205,18 @@ export default class Unify {
 
     filter_frontmatter = async (filterGroup: FilterGroup) => {
         let pages = []
+
         for (const page of this._dataviewApi.pages()) {
-            if (await this._filter_file(page.file, filterGroup))
+            // 1、预处理
+            const file = page.file
+            // 将 frontmatter 中的键（属性名）全部转换成小写
+            file.frontmatter = Object.fromEntries(Object.entries(file.frontmatter).map(([k, v]) => [k.toLowerCase(), v]))
+
+            // 2、判断
+            if (await this._filter_file(file, filterGroup))
                 pages.push(page)
         }
+
         return pages
     }
 
