@@ -167,6 +167,23 @@ export default class Unify {
         }
     }
 
+    private _compare_number = async (type: string, num1: number, num2: number) => {
+        switch (type) {
+            case '=':
+                return num1 == num2
+            case '>':
+                return num1 > num2
+            case '<':
+                return num1 < num2
+            case '>=':
+                return num1 >= num2
+            case '<=':
+                return num1 <= num2
+            default:
+                return false
+        }
+    }
+
     private _filter_file = async (file: any, filterGroup: FilterGroup): Promise<boolean> => {
         const { match, filters } = filterGroup
 
@@ -190,6 +207,10 @@ export default class Unify {
                         return isInvert != true
                     return isInvert != false
                 }
+
+                // 比较数字属性：文件创建时间、修改时间、大小
+                if (propertyKey == 'file.ctime' || propertyKey == 'file.mtime' || propertyKey == 'file.size')
+                    return isInvert != await this._compare_number(type, propertyValue, Number(compareValue))
 
                 // String(propertyValue)：有时 propertyValue 不是 string 类型
                 return isInvert != await this._compare_string(type, String(propertyValue), compareValue)
