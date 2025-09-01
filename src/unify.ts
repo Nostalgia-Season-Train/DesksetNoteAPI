@@ -7,10 +7,10 @@ import Task from './feature/task'
 import Suggest from './feature/suggest'
 
 type Filter = {
-    type: string,            // 比较类型：is、startsWith、endsWith、contains、isEmpty
-    isInvert: boolean,       // 是否取反比较结果
-    frontmatterKey: string,  // 要比较的属性
-    compareValue: string     // 要比较的值
+    type: string,         // 比较类型：is、startsWith、endsWith、contains、isEmpty
+    isInvert: boolean,    // 是否取反比较结果
+    propertyKey: string,  // 要比较的属性
+    compareValue: string  // 要比较的值
 }
 type FilterGroup = {
     match: string,  // 匹配规则：匹配所有 all、匹配任意 any
@@ -176,22 +176,23 @@ export default class Unify {
 
         const results = await Promise.all(filters.map(async filter => {
             if ((filter as any)?.match == undefined) {
-                const { type, isInvert, frontmatterKey, compareValue } = filter as Filter
-                // 行为明确：frontmatterKey 若为空字符串返回 false
-                if (frontmatterKey == '')
+                const { type, isInvert, propertyKey, compareValue } = filter as Filter
+                // 行为明确：propertyKey 若为空字符串返回 false
+                if (propertyKey == '')
                     return false
 
                 // isInvert != Boolean：取反 Boolean
-                // toLowerCase() 不区分大小写，需要提前将 file.frontmatter 中的键全部转换成小写
-                const frontmatterValue = file.frontmatter[frontmatterKey.toLowerCase()]
-                if (frontmatterValue == undefined) {
+                // toLowerCase() 不区分大小写，需要提前将 file 中的键全部转换成小写
+                const propertyValue = file[propertyKey.toLowerCase()]
+                // null 不同于 undefined，null 是键存在，但没有值（如 prop: ）
+                if (propertyValue == undefined || propertyValue == null) {
                     if (type == 'isEmpty')
                         return isInvert != true
                     return isInvert != false
                 }
 
-                // String(frontmatterValue)：有时 frontmatterValue 不是 string 类型
-                return isInvert != await this._compare_string(type, String(frontmatterValue), compareValue)
+                // String(propertyValue)：有时 propertyValue 不是 string 类型
+                return isInvert != await this._compare_string(type, String(propertyValue), compareValue)
             } else {
                 return await this._filter_file(file, filter as FilterGroup)
             }
@@ -206,11 +207,26 @@ export default class Unify {
     filter_frontmatter = async (filterGroup: FilterGroup) => {
         let pages = []
 
+        // dv.pages('"folder"') 限制范围，方便测试
         for (const page of this._dataviewApi.pages()) {
             // 1、预处理
-            const file = page.file
+            const rawFile = page.file
             // 将 frontmatter 中的键（属性名）全部转换成小写
-            file.frontmatter = Object.fromEntries(Object.entries(file.frontmatter).map(([k, v]) => [k.toLowerCase(), v]))
+            const frontmatter = Object.fromEntries(Object.entries(rawFile.frontmatter).map(([k, v]) => [k.toLowerCase(), v]))
+            const file = {
+                ...frontmatter,
+                'file.name': rawFile.name,
+                'file.basename': rawFile.name,
+                'file.ext': rawFile.ext,
+                'file.fullname': `${rawFile.name}.${rawFile.ext}`,
+                'file.folder': rawFile.folder,
+                'file.path': rawFile.path,
+                'file.ctime': Number(rawFile.ctime),
+                'file.mtime': Number(rawFile.mtime),
+                'file.size': rawFile.size,
+                'file.aliases': rawFile.aliases.values,
+                'file.tags': rawFile.tags.values
+            }
 
             // 2、判断
             if (await this._filter_file(file, filterGroup))
