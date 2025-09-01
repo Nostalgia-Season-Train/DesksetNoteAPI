@@ -22,8 +22,8 @@ export default class Unify {
     private _dataviewApi: DataviewApi
 
     private _window: Window
-    private _diary: Diary
     private _task: Task
+    private _diary: Diary
     private _suggest: Suggest
 
     constructor(app: App) {
@@ -35,8 +35,8 @@ export default class Unify {
         }
 
         this._window = new Window()
-        this._diary = new Diary(this._app)
         this._task = new Task(this._app)
+        this._diary = new Diary(this._app, this._task)
         this._suggest = new Suggest(this._app)
     }
 
@@ -111,23 +111,11 @@ export default class Unify {
 
     /* ==== 日记 ==== */
     read_today_diary = async () => {
-        const diary = await this._diary.getTodayDiary()
-        if (diary == null)
-            return null  // Python 解析为 None
-        return {
-            content: await this._app.vault.read(diary),
-            tasks: await this._task.getAllTasks(diary.path) ?? []
-        }
+        return await this._diary.getTodayDiary()
     }
 
     read_diary = async (dayid: string) => {
-        const diary = await this._diary.getDiary(dayid)
-        if (diary == null)
-            return null
-        return {
-            content: await this._app.vault.read(diary),
-            tasks: await this._task.getAllTasks(diary.path) ?? []
-        }
+        return await this._diary.getDiary(dayid)
     }
 
     list_diarys_in_a_month = async (monthid: string) => {
