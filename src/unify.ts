@@ -242,7 +242,7 @@ export default class Unify {
     }
 
     filter_frontmatter = async (rawFilterGroup: FilterGroup) => {
-        let pages = []
+        let files = []
 
         // 预处理过滤器组：大小写转换...
         const filterGroup = await this._preProcessFilterGroup(rawFilterGroup)
@@ -270,10 +270,10 @@ export default class Unify {
 
             // 2、判断
             if (await this._filter_file(file, filterGroup))
-                pages.push(page)
+                files.push(file)
         }
 
-        return pages
+        return files
     }
 
     filter_frontmatter_number = async (filterGroup: FilterGroup) => {
