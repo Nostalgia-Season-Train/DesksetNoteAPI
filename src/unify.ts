@@ -187,8 +187,7 @@ export default class Unify {
                     return false
 
                 // isInvert != Boolean：取反 Boolean
-                // toLowerCase() 不区分大小写，需要提前将 file 中的键全部转换成小写
-                const propertyValue = file[propertyKey.toLowerCase()]
+                const propertyValue = file[propertyKey]
                 // null 不同于 undefined，null 是键存在，但没有值（如 prop: ）
                 if (propertyValue == undefined || propertyValue == null) {
                     if (type == 'isEmpty')
@@ -213,8 +212,40 @@ export default class Unify {
             return results.some(result => result)
     }
 
-    filter_frontmatter = async (filterGroup: FilterGroup) => {
+    private _preProcessFilterGroup = async (rawFilterGroup: FilterGroup): Promise<FilterGroup> => {
+        const { match: rawMatch, filters: rawFilters } = rawFilterGroup
+
+        const filters = await Promise.all(rawFilters.map(async rawFilter => {
+            if ((rawFilter as any)?.match == undefined) {
+                const {
+                    type: rawType,
+                    isInvert: rawIsInvert,
+                    propertyKey: rawPropertyKey,
+                    compareValue: rawCompareValue
+                } = rawFilter as Filter
+
+                // toLowerCase() 不区分大小写，需要提前将 file 中的键全部转换成小写
+                const propertyKey = rawPropertyKey.toLowerCase()
+
+                return {
+                    type: rawType,
+                    isInvert: rawIsInvert,
+                    propertyKey: propertyKey,
+                    compareValue: rawCompareValue
+                }
+            } else {
+                return await this._preProcessFilterGroup(rawFilter as FilterGroup)
+            }
+        }))
+
+        return { match: rawMatch, filters: filters }
+    }
+
+    filter_frontmatter = async (rawFilterGroup: FilterGroup) => {
         let pages = []
+
+        // 预处理过滤器组：大小写转换...
+        const filterGroup = await this._preProcessFilterGroup(rawFilterGroup)
 
         // dv.pages('"folder"') 限制范围，方便测试
         for (const page of this._dataviewApi.pages()) {
