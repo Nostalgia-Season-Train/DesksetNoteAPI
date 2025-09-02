@@ -23,7 +23,7 @@ export default class DesksetPlugin extends Plugin {
 		this.api = new DesksetNoteAPI(this.app, this.settings, this)
 		this.app.workspace.on('quit', async () => await this.api.close())
 
-		try { await this.api.open() } catch {}
+		try { await this.api.open() } catch (err) { new Notice(`无法连接数字桌搭\n${err}`) }
 		this.registerInterval(window.setInterval(async () => {
 			try { await this.api.open() } catch {}
 		}, 10 * 1000))

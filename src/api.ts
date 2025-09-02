@@ -47,7 +47,7 @@ export default class DesksetNoteAPI {
 
         // 初始化
         this._notetoken = (await request({
-            url: `http:${this._setting.host}:${this._setting.port}/v0/access/note/login`,
+            url: `http:${this._setting.host}:${this._setting.port}/v0/access/note/obsidian/login`,
             method: 'post',
             contentType: 'application/x-www-form-urlencoded',
             body: new URLSearchParams({
