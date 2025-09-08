@@ -135,7 +135,7 @@ export default class Unify {
             await this._app.workspace.getLeaf(true).openFile(tfile)
             await this._window.fullscreen()
         }
-        return null
+        return tfile != null ? true : false
     }
 
 
@@ -278,5 +278,12 @@ export default class Unify {
 
     filter_frontmatter_number = async (filterGroup: FilterGroup) => {
         return (await this.filter_frontmatter(filterGroup)).length
+    }
+
+    filter_and_random_open_in_obsidian = async (filterGroup: FilterGroup) => {
+        const files = await this.filter_frontmatter(filterGroup)
+        if (files.length == 0)
+            return false
+        return await this.open_in_obsidian(files[Math.floor(Math.random() * files.length)]['file.path'])
     }
 }
