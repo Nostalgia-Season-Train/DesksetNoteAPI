@@ -10,7 +10,8 @@ type Filter = {
     type: string,         // 比较类型：is、startsWith、endsWith、contains、isEmpty
     isInvert: boolean,    // 是否取反比较结果
     propertyKey: string,  // 要比较的属性
-    compareValue: string  // 要比较的值
+    // DesksetBack 传入的 compareValue 全为 string 类型，经过 preProcessFilterGroup 转换成 string | number
+    compareValue: string | number  // 要比较的值
 }
 type FilterGroup = {
     match: string,  // 匹配规则：匹配所有 all、匹配任意 any
@@ -196,11 +197,18 @@ export default class Unify {
                 }
 
                 // 比较数字属性：文件创建时间、修改时间、大小
-                if (propertyKey == 'file.ctime' || propertyKey == 'file.mtime' || propertyKey == 'file.size')
-                    return isInvert != await this._compare_number(type, propertyValue, Number(compareValue))
-
-                // String(propertyValue)：有时 propertyValue 不是 string 类型
-                return isInvert != await this._compare_string(type, String(propertyValue), compareValue)
+                if (propertyKey == 'file.ctime' || propertyKey == 'file.mtime' || propertyKey == 'file.size') {
+                    if (typeof compareValue != 'number')
+                        return false
+                    return isInvert != await this._compare_number(type, propertyValue, compareValue)
+                }
+                // 比较字符串属性
+                else {
+                    if (typeof compareValue != 'string')
+                        return false
+                    // String(propertyValue)：有时 propertyValue 不是 string 类型
+                    return isInvert != await this._compare_string(type, String(propertyValue), compareValue)
+                }
             } else {
                 return await this._filter_file(file, filter as FilterGroup)
             }
@@ -227,11 +235,18 @@ export default class Unify {
                 // toLowerCase() 不区分大小写，需要提前将 file 中的键全部转换成小写
                 const propertyKey = rawPropertyKey.toLowerCase()
 
+                // 将 compareValue 按照 propertyKey 转换成正确的类型
+                let compareValue
+                if (propertyKey == 'file.ctime' || propertyKey == 'file.mtime' || propertyKey == 'file.size')
+                    compareValue = Number(rawCompareValue)
+                else
+                    compareValue = String(rawCompareValue)
+
                 return {
                     type: rawType,
                     isInvert: rawIsInvert,
                     propertyKey: propertyKey,
-                    compareValue: rawCompareValue
+                    compareValue: compareValue
                 }
             } else {
                 return await this._preProcessFilterGroup(rawFilter as FilterGroup)
