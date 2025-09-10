@@ -59,7 +59,7 @@ export default class DesksetNoteAPI {
             }
         })).slice(1, -1)  // 去掉字符串双引号...
         this._websocket = new WebSocket(
-            `ws://${this._setting.host}:${this._setting.port}/v0/note/obsidian-manager/rpc`,
+            `ws://${this._setting.host}:${this._setting.port}/v0/access/note/obsidian/rpc`,
             ['Authorization', `bearer-${this._notetoken}`]
         )
         this._rpc = new RpcServer(this._websocket, this._unify, this._app, this._plugin)
