@@ -41,17 +41,6 @@ export default class Unify {
 
         this.router.post('/login-in', this._loginIn)
         this.router.use(this.check.bind(this))  // bind 让 check 中的 this 指向自身
-
-
-        /* ==== 设置更改 ==== */
-
-        // 问候语
-        this.router.post('/setting/greets', async (ctx: any, next: any) => {
-            const greets = ctx.request.body
-            this.setting.greets = greets
-            this.plugin.saveData(this.setting)
-            ctx.body = 'Change Setting Success'  // DesksetBack 检查状态码 200 即可
-        })
     }
 
     async check(ctx: any, next: any) {
