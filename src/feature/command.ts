@@ -15,4 +15,11 @@ export default class Command {
             }
         })
     }
+
+    executeCommand = async (id: string) => {
+        const command = (this._app as any).commands.commands[id]
+        if (command == undefined)
+            throw Error(`Command ${id} not exist`)
+        return await command.callback()
+    }
 }
