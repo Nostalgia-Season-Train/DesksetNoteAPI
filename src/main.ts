@@ -2,7 +2,7 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 import { DesksetPluginSetting as DesksetPluginSettings } from './core/setting'
 import { randomString } from './core/random'
-import DesksetNoteAPI from './api';
+import DesksetNoteAPI from './rpc/api';
 
 const DEFAULT_SETTINGS: DesksetPluginSettings = {
 	host: '127.0.0.1',

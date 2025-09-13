@@ -1,5 +1,5 @@
 import { App, Plugin, request, moment } from 'obsidian'
-import { DesksetPluginSetting as Setting } from './core/setting'
+import { DesksetPluginSetting as Setting } from '../core/setting'
 
 import Unify from './unify'
 

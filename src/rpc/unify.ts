@@ -1,10 +1,10 @@
 import { App, moment } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
-import Window from './feature/window'
-import Diary from './feature/diary'
-import Task from './feature/task'
-import Suggest from './feature/suggest'
+import Window from '../feature/window'
+import Diary from '../feature/diary'
+import Task from '../feature/task'
+import Suggest from '../feature/suggest'
 
 type Filter = {
     type: string,         // 比较类型：is、startsWith、endsWith、contains、isEmpty
