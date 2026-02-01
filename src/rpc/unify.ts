@@ -63,6 +63,17 @@ export default class Unify {
         return Math.floor([new Date() - oldestNote.ctime] / (60 * 60 * 24 * 1000))
     }
 
+    // 获取仓库状态
+    get_vault_status = async (): Promise<Record<string, number>> => {
+        return {
+            note_num: await this.get_note_number(),                           // 笔记总数
+            attach_num: await this.get_attachment_number(),                   // 附件总数
+            useday_num: await this.get_useday_number(),                       // 使用天数
+            tag_num: this._dataviewApi.pages().file.etags.distinct().length,  // 标签总数
+            task_num: this._dataviewApi.pages().file.tasks.length             // 任务总数
+        }
+    }
+
     // 获取热力图：统计本周 + 前 weeknum 周的笔记创建和编辑数量
     get_heatmap = async (weeknum: number): Promise<{ date: string, number: number }[]> => {
         // 起始日期 ~ 结束日期：前 weeknum 周周一 ~ 今天
