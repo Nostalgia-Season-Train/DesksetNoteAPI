@@ -36,6 +36,15 @@ export const toggleTask = async (path: string, line: number): Promise<boolean> =
   // 任务状态：' ' 未完成，'x' 已完成
   const taskStatus = match[1]
 
+  // 通过 Tasks 社区插件切换任务
+  const tasksAPI = (app as any).plugins.plugins['obsidian-tasks-plugin'].apiV1
+  if (tasksAPI != undefined || tasksAPI != null) {
+    const newTargetLine = tasksAPI.executeToggleTaskDoneCommand(targetLine, path)
+    fileLines[line] = newTargetLine
+    app.vault.adapter.write(path, fileLines.join('\n'))
+    return true
+  }
+
   // 切换任务
   let newTargetLine
   if (taskStatus == ' ')
