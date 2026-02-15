@@ -25,7 +25,8 @@ export default class RpcServer {
 
         let result, error
         try {
-            result = await this._instance[request.procedure](...request.args)
+            // rpc 无法接收 void 或 undefined 返回，转换成 null 对应 None
+            result = await this._instance[request.procedure](...request.args) ?? null
         } catch (err) {
             error = err
         }

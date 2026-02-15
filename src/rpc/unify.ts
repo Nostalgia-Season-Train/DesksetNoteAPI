@@ -132,8 +132,7 @@ export default class Unify {
 
     /* ==== Obsidian 窗口 ==== */
     open_vault = async () => {
-        await openObsidianWin()
-        return null  // rpc 接收不到 void 返回
+        return await openObsidianWin()
     }
 
     open_in_obsidian = async (path: string) => {
