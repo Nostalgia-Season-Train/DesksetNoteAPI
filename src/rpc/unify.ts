@@ -5,6 +5,7 @@ import { openObsidian, openObsidianFile } from '../feature/window'
 import Diary from '../feature/diary'
 import Suggest from '../feature/suggest'
 import { FilterGroup, statsFile } from 'src/feature/_note/filter'
+import { getVaultInfo } from 'src/feature/vault'
 
 export default class Unify {
     private _app: App
@@ -25,37 +26,9 @@ export default class Unify {
         this._suggest = new Suggest(this._app)
     }
 
-    // 获取笔记总数
-    get_note_number = async (): Promise<number> => {
-        return this._dataviewApi.pages().length
-    }
-
-    // 获取附件总数
-    get_attachment_number = async (): Promise<number> => {
-        let num = 0
-        for (const file of this._app.vault.getFiles()) {
-            if (file.extension != 'md') num++
-        }
-        return num
-    }
-
-    // 获取仓库使用天数
-    get_useday_number = async (): Promise<number> => {
-        // @ts-ignore
-        const oldestNote = this._dataviewApi.pages().file.sort(file => file.cday)[0]  // 比较 cday 而不是 ctime 节省性能
-        // @ts-ignore
-        return Math.floor([new Date() - oldestNote.ctime] / (60 * 60 * 24 * 1000))
-    }
-
     // 获取仓库状态
     get_vault_status = async (): Promise<Record<string, number>> => {
-        return {
-            note_num: await this.get_note_number(),                           // 笔记总数
-            attach_num: await this.get_attachment_number(),                   // 附件总数
-            useday_num: await this.get_useday_number(),                       // 使用天数
-            tag_num: this._dataviewApi.pages().file.etags.distinct().length,  // 标签总数
-            task_num: this._dataviewApi.pages().file.tasks.length             // 任务总数
-        }
+        return await getVaultInfo()
     }
 
     // 获取热力图：统计本周 + 前 weeknum 周的笔记创建和编辑数量
