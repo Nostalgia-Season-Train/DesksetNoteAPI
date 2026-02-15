@@ -1,7 +1,7 @@
 import { App, moment } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
-import { openObsidianWin } from '../feature/window'
+import { openObsidian, openObsidianFile } from '../feature/window'
 import Diary from '../feature/diary'
 import Suggest from '../feature/suggest'
 
@@ -132,16 +132,11 @@ export default class Unify {
 
     /* ==== Obsidian 窗口 ==== */
     open_vault = async () => {
-        return await openObsidianWin()
+        return await openObsidian()
     }
 
     open_in_obsidian = async (path: string) => {
-        const tfile = this._app.vault.getFileByPath(path)
-        if (tfile != null) {
-            await this._app.workspace.getLeaf(true).openFile(tfile)
-            await openObsidianWin()
-        }
-        return tfile != null ? true : false
+        return await openObsidianFile(path)
     }
 
 
