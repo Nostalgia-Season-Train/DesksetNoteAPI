@@ -1,25 +1,21 @@
-import { App } from 'obsidian'
+import { app } from 'src/core/global'
 
-export default class Command {
-    private _app: App
 
-    constructor(app: App) {
-        this._app = app
+/* ==== 获取所有可用命令 ==== */
+export const getAllCommands = async () => {
+  return Object.values((app as any).commands.commands).map((item: any) => {
+    return {
+      id: item.id,
+      name: item.name
     }
+  })
+}
 
-    getAllCommands = async () => {
-        return Object.values((this._app as any).commands.commands).map((item: any) => {
-            return {
-                id: item.id,
-                name: item.name
-            }
-        })
-    }
 
-    executeCommand = async (id: string) => {
-        const command = (this._app as any).commands.commands[id]
-        if (command == undefined)
-            throw Error(`Command ${id} not exist`)
-        return await command.callback()
-    }
+/* ==== 执行命令 ==== */
+export const executeCommand = async (id: string) => {
+  const command = (app as any).commands.commands[id]
+  if (command == undefined)
+    throw Error(`Command ${id} not exist`)
+  return await command.callback()
 }
