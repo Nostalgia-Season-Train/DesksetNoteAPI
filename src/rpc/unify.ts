@@ -1,7 +1,7 @@
 import { App, moment } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
-import Window from '../feature/window'
+import { openObsidianWin } from '../feature/window'
 import Diary from '../feature/diary'
 import Suggest from '../feature/suggest'
 
@@ -21,7 +21,6 @@ export default class Unify {
     private _app: App
     private _dataviewApi: DataviewApi
 
-    private _window: Window
     private _diary: Diary
     private _suggest: Suggest
 
@@ -33,7 +32,6 @@ export default class Unify {
             throw Error('Dataview not enable')
         }
 
-        this._window = new Window()
         this._diary = new Diary(this._app)
         this._suggest = new Suggest(this._app)
     }
@@ -134,7 +132,7 @@ export default class Unify {
 
     /* ==== Obsidian 窗口 ==== */
     open_vault = async () => {
-        await this._window.fullscreen()
+        await openObsidianWin()
         return null  // rpc 接收不到 void 返回
     }
 
@@ -142,7 +140,7 @@ export default class Unify {
         const tfile = this._app.vault.getFileByPath(path)
         if (tfile != null) {
             await this._app.workspace.getLeaf(true).openFile(tfile)
-            await this._window.fullscreen()
+            await openObsidianWin()
         }
         return tfile != null ? true : false
     }

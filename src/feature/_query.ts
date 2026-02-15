@@ -2,13 +2,13 @@ import { dataview } from "src/core/global"
 
 
 /* ==== 获取某个文件中的所有任务 ==== */
-  // 文件不存在返回 null
 export const getAllTasks = async (path: string): Promise<{
   line: number
   status: string,
   content: string
 }[] | null> => {
   const page = dataview.page(path)
+  // 文件不存在返回 null
   if (page == undefined)
     return null
 

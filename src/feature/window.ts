@@ -1,17 +1,11 @@
 // 代码参考：https://github.com/dragonwocky/obsidian-tray
+const { getCurrentWindow } = require('electron').remote
+const _electron_win = getCurrentWindow()
 
-export default class Window {
-    private _electron_win: any
 
-    constructor() {
-        const { getCurrentWindow } = require('electron').remote
-
-        this._electron_win = getCurrentWindow()
-    }
-
-    // Obsidian 需要处于最小化窗口状态，才会跳转到前台
-    async fullscreen() {
-        await this._electron_win.minimize()
-        await this._electron_win.maximize()
-    }
+/* ==== 打开 Obsidian 窗口 ==== */
+export const openObsidianWin = async () => {
+  // Obsidian 需要处于最小化窗口状态，才会跳转到前台
+  await _electron_win.minimize()
+  await _electron_win.maximize()
 }
