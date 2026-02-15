@@ -1,6 +1,6 @@
 // 代码参考：https://github.com/liamcain/obsidian-daily-notes-interface
 import { App, TFile, moment } from 'obsidian'
-import { getAllTasks } from './_query'
+import { getAllTasks } from './_note'
 
 const DAYID_FORMAT = 'YYYYMMDD'  // 某天 ID：格式 YYYYMMDD
 const MONTHID_FORMAT = 'YYYYMM'  // 某月 ID：格式 YYYYMM
