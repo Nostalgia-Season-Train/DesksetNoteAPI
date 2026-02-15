@@ -1,6 +1,6 @@
 // 代码参考：https://github.com/liamcain/obsidian-daily-notes-interface
 import { App, TFile, moment } from 'obsidian'
-import Task from './task'
+import { getAllTasks } from './_query'
 
 const DAYID_FORMAT = 'YYYYMMDD'  // 某天 ID：格式 YYYYMMDD
 const MONTHID_FORMAT = 'YYYYMM'  // 某月 ID：格式 YYYYMM
@@ -9,11 +9,9 @@ const DEFAULT_DIARY_FORMAT = 'YYYY-MM-DD'
 
 export default class Diary {
     private _app: App
-    private _task: Task
 
-    constructor(app: App, task: Task) {
+    constructor(app: App) {
         this._app = app
-        this._task = task
     }
 
     private _getDiarySetting = async (): Promise<{ format: string, folder: string, template: string }> => {
@@ -37,7 +35,7 @@ export default class Diary {
             path: path,
             text: text,
             content: content,
-            tasks: await this._task.getAllTasks(path) ?? []
+            tasks: await getAllTasks(path) ?? []
         }
     }
 

@@ -3,7 +3,6 @@ import { DataviewApi, getAPI } from 'obsidian-dataview'
 
 import Window from '../feature/window'
 import Diary from '../feature/diary'
-import Task from '../feature/task'
 import Suggest from '../feature/suggest'
 
 type Filter = {
@@ -23,7 +22,6 @@ export default class Unify {
     private _dataviewApi: DataviewApi
 
     private _window: Window
-    private _task: Task
     private _diary: Diary
     private _suggest: Suggest
 
@@ -36,8 +34,7 @@ export default class Unify {
         }
 
         this._window = new Window()
-        this._task = new Task(this._app)
-        this._diary = new Diary(this._app, this._task)
+        this._diary = new Diary(this._app)
         this._suggest = new Suggest(this._app)
     }
 
