@@ -1,9 +1,9 @@
 import { App } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
-import { openObsidian, openObsidianFile } from '../feature/window'
+import { openObsidian, openObsidianFile } from 'src/feature/window'
 import { getOneDiary, getAllDiarysInOneMonth } from 'src/feature/diary'
-import Suggest from '../feature/suggest'
+import { getSuggestions } from 'src/feature/suggest'
 import { statsFile } from 'src/feature/_vault/filter'
 import { getVaultInfo, getActiveFile } from 'src/feature/_vault/info'
 import { getHeats } from 'src/feature/_vault/heatmap'
@@ -13,8 +13,6 @@ export default class Unify {
   private _app: App
   private _dataviewApi: DataviewApi
 
-  private _suggest: Suggest
-
   constructor(app: App) {
     this._app = app
     this._dataviewApi = getAPI(this._app)
@@ -22,8 +20,6 @@ export default class Unify {
     if (this._dataviewApi == undefined) {
       throw Error('Dataview not enable')
     }
-
-    this._suggest = new Suggest(this._app)
   }
 
   /* --- 仓库 --- */
@@ -31,20 +27,8 @@ export default class Unify {
   get_heatmap = getHeats
   get_active_file = getActiveFile
 
-  // 返回查询建议，数据来源：核心插件/快速切换
-  suggest_by_switcher = async (query: string) => {
-    return (await this._suggest.getSuggestions(query)).map(item => {
-      if (item?.type != 'file')
-        return null
-      if (item?.file?.basename == undefined || item?.file?.extension == undefined || item?.file?.path == undefined)
-        return null
-      return {
-        name: item.file.basename,
-        type: item.file.extension,
-        path: item.file.path
-      }
-    }).filter(item => item != null)
-  }
+  /* --- 查询建议 --- */
+  suggest_by_switcher = getSuggestions
 
   /* --- 日记 --- */
   read_diary = getOneDiary
