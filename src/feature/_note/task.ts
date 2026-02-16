@@ -24,7 +24,7 @@ export const getAllTasks = async (path: string): Promise<{
 
 
 /* ==== 切换某个文件中的某行任务 ==== */
-export const toggleTask = async (path: string, line: number): Promise<boolean> => {
+export const toggleOneTask = async (path: string, line: number): Promise<boolean> => {
   const fileLines: string[] = (await app.vault.adapter.read(path)).split('\n')
   const targetLine: string = fileLines[line]
   const match = targetLine.match(/^\ *\-\ \[(.)\]\ /)  // ^ 从字符串头开始匹配
