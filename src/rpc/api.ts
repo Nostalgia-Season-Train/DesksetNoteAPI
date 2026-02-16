@@ -31,11 +31,25 @@ export default class DesksetNoteAPI {
 
     // 注册事件监听
     // 其他地方注册的监听器，断开连接后可能继续发送消息
-    this._app.workspace.on('active-leaf-change', async () => this._websocket?.send(JSON.stringify({
-      datetime: moment().toISOString(true),
-      event: 'active-leaf-change',
-      value: null
-    })))
+    this._plugin.registerEvent(
+      this._app.workspace.on('active-leaf-change', () => this._websocket?.send(JSON.stringify({
+        datetime: moment().toISOString(true),
+        event: 'active-leaf-change',
+        value: null
+      })))
+    )
+    this._plugin.registerEvent(
+      // @ts-ignore
+      this._app.metadataCache.on('dataview:metadata-change', (type, file, oldPath?) => this._websocket?.send(JSON.stringify({
+        datetime: moment().toISOString(true),
+        event: 'dataview:metadata-change',
+        value: {
+          type: type,
+          path: file.path,  // 直接传递 file 构成循环引用 tfile -> app -> tfile
+          oldPath: oldPath
+        }
+      })))
+    )
   }
 
   async open() {
