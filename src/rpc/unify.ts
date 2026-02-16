@@ -5,7 +5,7 @@ import { openObsidian, openObsidianFile } from '../feature/window'
 import Diary from '../feature/diary'
 import Suggest from '../feature/suggest'
 import { FilterGroup, statsFile } from 'src/feature/_note/filter'
-import { getVaultInfo } from 'src/feature/vault'
+import { getVaultInfo, getHeats } from 'src/feature/vault'
 
 export default class Unify {
     private _app: App
@@ -31,31 +31,7 @@ export default class Unify {
         return await getVaultInfo()
     }
 
-    // 获取热力图：统计本周 + 前 weeknum 周的笔记创建和编辑数量
-    get_heatmap = async (weeknum: number): Promise<{ date: string, number: number }[]> => {
-        // 起始日期 ~ 结束日期：前 weeknum 周周一 ~ 今天
-          // 注：不会统计同一笔记，连续编辑的情况...除非追踪 Git
-        const start = Number(moment().subtract(weeknum, 'weeks').startOf('week').format('YYYYMMDD'))
-        const end = Number(moment().format('YYYYMMDD'))
-
-        // 所有笔记创建日期和修改日期的数组
-        let ctimes: number[] = []
-        let mtimes: number[] = []
-        this._dataviewApi.pages().map((page: any) => {
-            ctimes.push(Number(moment(page.file.ctime.ts).format('YYYYMMDD')))
-            mtimes.push(Number(moment(page.file.mtime.ts).format('YYYYMMDD')))
-        })
-
-        // 热点 = { 日期, 当日创建和编辑笔记的数量 }
-        let heats: Array<{ date: string, number: number }> = []
-
-        for (let date = start; date <= end; date = Number(moment(date, 'YYYYMMDD').add(1, 'days').format('YYYYMMDD'))) {
-            const number = ctimes.filter(ctime => ctime == date).length + mtimes.filter(mtime => mtime == date).length
-            heats.push({ date: String(date), number: number })
-        }
-
-        return heats
-    }
+    get_heatmap = getHeats
 
     // 获取活跃文件（当前聚焦的标签页）
     get_active_file = async (): Promise<string> => {
@@ -91,21 +67,12 @@ export default class Unify {
         return await this._diary.listDiaryInMonth(monthid)
     }
 
+    /* --- Obsidian 窗口 --- */
+    open_vault = openObsidian
+    open_in_obsidian = openObsidianFile
 
-    /* ==== Obsidian 窗口 ==== */
-    open_vault = async () => {
-        return await openObsidian()
-    }
-
-    open_in_obsidian = async (path: string) => {
-        return await openObsidianFile(path)
-    }
-
-
-    /* ==== 数据分析 ==== */
-    filter_frontmatter = async (rawFilterGroup: FilterGroup) => {
-        return await statsFile(rawFilterGroup)
-    }
+    /* --- 数据分析 --- */
+    filter_frontmatter = statsFile
 
     filter_frontmatter_number = async (filterGroup: FilterGroup) => {
         return (await this.filter_frontmatter(filterGroup)).length
