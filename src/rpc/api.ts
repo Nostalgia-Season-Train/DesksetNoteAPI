@@ -46,7 +46,7 @@ export default class DesksetNoteAPI {
         value: {
           type: type,
           path: file.path,  // 直接传递 file 构成循环引用 tfile -> app -> tfile
-          oldPath: oldPath
+          oldPath: oldPath ?? null  // null 确保 oldPath 键存在
         }
       })))
     )
