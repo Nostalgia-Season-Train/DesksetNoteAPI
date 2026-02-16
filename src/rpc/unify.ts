@@ -5,7 +5,7 @@ import { openObsidian, openObsidianFile } from '../feature/window'
 import { getOneDiary, getAllDiarysInOneMonth } from 'src/feature/diary'
 import Suggest from '../feature/suggest'
 import { statsFile } from 'src/feature/_vault/filter'
-import { getVaultInfo } from 'src/feature/_vault/info'
+import { getVaultInfo, getActiveFile } from 'src/feature/_vault/info'
 import { getHeats } from 'src/feature/_vault/heatmap'
 
 
@@ -26,14 +26,10 @@ export default class Unify {
     this._suggest = new Suggest(this._app)
   }
 
-  // 获取仓库状态
+  /* --- 仓库 --- */
   get_vault_status = getVaultInfo
   get_heatmap = getHeats
-
-  // 获取活跃文件（当前聚焦的标签页）
-  get_active_file = async (): Promise<string> => {
-    return this._app.workspace.getActiveFile()?.path ?? ''
-  }
+  get_active_file = getActiveFile
 
   // 返回查询建议，数据来源：核心插件/快速切换
   suggest_by_switcher = async (query: string) => {

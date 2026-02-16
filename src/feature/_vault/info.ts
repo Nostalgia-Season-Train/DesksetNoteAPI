@@ -30,3 +30,10 @@ export const getVaultInfo = async () => {
     task_num: dataview.pages().file.tasks.length             // 任务总数
   }
 }
+
+
+/* ==== 获取活跃文件 ==== */
+// 活跃文件 = 当前聚焦标签页打开的文件
+export const getActiveFile = async () => {
+  return app.workspace.getActiveFile()?.path ?? ''
+}
