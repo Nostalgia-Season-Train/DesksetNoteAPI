@@ -2,7 +2,7 @@ import { App, moment } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
 import { openObsidian, openObsidianFile } from '../feature/window'
-import Diary from '../feature/diary'
+import { getOneDiary, getAllDiarysInOneMonth } from 'src/feature/diary'
 import Suggest from '../feature/suggest'
 import { FilterGroup, statsFile } from 'src/feature/_note/filter'
 import { getVaultInfo, getHeats } from 'src/feature/vault'
@@ -11,7 +11,6 @@ export default class Unify {
     private _app: App
     private _dataviewApi: DataviewApi
 
-    private _diary: Diary
     private _suggest: Suggest
 
     constructor(app: App) {
@@ -22,15 +21,11 @@ export default class Unify {
             throw Error('Dataview not enable')
         }
 
-        this._diary = new Diary(this._app)
         this._suggest = new Suggest(this._app)
     }
 
     // 获取仓库状态
-    get_vault_status = async (): Promise<Record<string, number>> => {
-        return await getVaultInfo()
-    }
-
+    get_vault_status = getVaultInfo
     get_heatmap = getHeats
 
     // 获取活跃文件（当前聚焦的标签页）
@@ -53,19 +48,9 @@ export default class Unify {
         }).filter(item => item != null)
     }
 
-
-    /* ==== 日记 ==== */
-    read_today_diary = async () => {
-        return await this._diary.getTodayDiary()
-    }
-
-    read_diary = async (dayid: string) => {
-        return await this._diary.getDiary(dayid)
-    }
-
-    list_diarys_in_a_month = async (monthid: string) => {
-        return await this._diary.listDiaryInMonth(monthid)
-    }
+    /* --- 日记 --- */
+    read_diary = getOneDiary
+    list_diarys_in_a_month = getAllDiarysInOneMonth
 
     /* --- Obsidian 窗口 --- */
     open_vault = openObsidian
