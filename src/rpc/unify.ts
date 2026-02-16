@@ -4,8 +4,9 @@ import { DataviewApi, getAPI } from 'obsidian-dataview'
 import { openObsidian, openObsidianFile } from '../feature/window'
 import { getOneDiary, getAllDiarysInOneMonth } from 'src/feature/diary'
 import Suggest from '../feature/suggest'
-import { FilterGroup, statsFile } from 'src/feature/_note/filter'
-import { getVaultInfo, getHeats } from 'src/feature/vault'
+import { FilterGroup, statsFile } from 'src/feature/_vault/filter'
+import { getVaultInfo } from 'src/feature/_vault/info'
+import { getHeats } from 'src/feature/_vault/heatmap'
 
 export default class Unify {
     private _app: App
