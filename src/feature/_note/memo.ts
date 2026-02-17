@@ -1,10 +1,14 @@
-import { app } from 'src/core/global'
+import { app, thino } from 'src/core/global'
+
+const thinoTitle = thino?.settings?.ProcessEntriesBelow
+const thinoFormat = thino?.settings?.DefaultTimePrefix
+
+const title = thinoTitle ?? '# Memos'     // Memo 所在标题，优先 Thino 设置，默认 # Memos
+const format = thinoFormat ?? 'HH:mm:ss'  // Memo 时间前缀，优先 Thino 设置，默认 HH:mm:ss
 
 
 /* ==== 获取所有便签 ==== */
 export const getAllMemos = async (path: string) => {
-  const title = '# Memos'    // Memo 所在标题，默认 # Memos
-  const format = 'HH:mm:ss'  // Memo 时间前缀，默认 HH:mm:ss
   const file = await app.vault.adapter.read(path)
 
   // 获取 Memo 所在标题下的文本 titleText
