@@ -2,6 +2,47 @@ import { app, dataview, tasks } from 'src/core/global'
 
 const tasksAPI = tasks?.apiV1
 
+const _paraseTask = async (data: string) => {
+  const match = data.match(/(^\ *\-\ \[)(.)(\]\ )([\s\S]*)/)
+  // null 代表匹配失败，不是任务格式 '- [ ] '
+  if (match === null)
+    return null
+
+  // 解析示例：- [x] 这是一个任务
+    // 任务数据 data   = box.prefix + status + box.suffix + text
+    // 任务盒子 box    = { prefix: '- [', suffix: '] ' }
+    // 任务状态 status = 'x'
+    // 任务文本 text   = '这是一个任务'
+    // - [ ] 后面再按 Tasks 文档解析任务文本，从 text 分离内容 content 和标志 sign（Emoji 或 Dataview 记号）
+    // 文档：https://publish.obsidian.md/tasks/Reference/Task+Formats/About+Task+Formats
+  const box = { prefix: match[1], suffix: match[3] }
+  const status = match[2]
+  const text = match[4]
+
+  return {
+    get data() {
+      return `${this.box.prefix}${this.status}${this.box.suffix}${this.text}`
+    },
+    box: box,
+    status: status,
+    text: text
+  }
+}
+
+const _structTask = async (text: string) => {
+  const box = { prefix: '- [', suffix: '] ' }
+  const status = ' '
+
+  return {
+    get data() {
+      return `${this.box.prefix}${this.status}${this.box.suffix}${this.text}`
+    },
+    box: box,
+    status: status,
+    text: text
+  }
+}
+
 
 /* ==== 获取某个文件中的所有任务 ==== */
 export const getAllTasks = async (path: string): Promise<{
@@ -26,7 +67,7 @@ export const getAllTasks = async (path: string): Promise<{
 
 
 /* ==== 切换某个文件中的某行任务 ==== */
-export const toggleOneTask = async (path: string, line: number): Promise<boolean> => {
+export const toggleTask = async (path: string, line: number) => {
   const fileLines: string[] = (await app.vault.adapter.read(path)).split('\n')
   const targetLine: string = fileLines[line]
   const match = targetLine.match(/^\ *\-\ \[(.)\]\ /)  // ^ 从字符串头开始匹配
@@ -54,8 +95,38 @@ export const toggleOneTask = async (path: string, line: number): Promise<boolean
     newTargetLine = targetLine.replace(/\[.\]/, '[ ]')
   fileLines[line] = newTargetLine
 
-  app.vault.adapter.write(path, fileLines.join('\n'))
+  await app.vault.adapter.write(path, fileLines.join('\n'))
 
   // 返回成功
   return true
+}
+
+
+/* ==== 创建任务 ==== */
+export const creatTask = async (path: string, content: string) => {
+  let fileLines: string[] = (await app.vault.adapter.read(path)).split('\n')
+
+  // 末尾是空行
+  if (fileLines[fileLines.length - 1] === '') {
+    fileLines[fileLines.length - 1] = (await _structTask(content)).data
+    fileLines.push('')
+  }
+  // 末尾不是空行
+  else {
+    fileLines.push((await _structTask(content)).data)
+  }
+
+  await app.vault.adapter.write(path, fileLines.join('\n'))
+}
+
+
+/* ==== 编辑任务（内容） ==== */
+export const editTask = async (path: string, line: number, newContent: string) => {
+  return
+}
+
+
+/* ==== 删除任务 ==== */
+export const deletTask = async (path: string, line: number) => {
+  return
 }
