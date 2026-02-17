@@ -1,6 +1,6 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
-import { DesksetPluginSetting as DesksetPluginSettings } from './core/setting'
+import { DesksetPluginSetting as DesksetPluginSettings, NewTaskPosition } from './core/setting'
 import { randomString } from './core/random'
 import DesksetNoteAPI from './rpc/api';
 
@@ -8,7 +8,10 @@ const DEFAULT_SETTINGS: DesksetPluginSettings = {
 	host: '127.0.0.1',
 	port: 6528,
 	username: 'noteapi-user' + randomString(5, 10),
-	password: 'noteapi-pswd' + randomString(10, 20)
+	password: 'noteapi-pswd' + randomString(10, 20),
+  task: {
+    newTaskPosition: NewTaskPosition.LatestTask
+  }
 }
 
 export default class DesksetPlugin extends Plugin {
@@ -83,5 +86,18 @@ class DesksetPluginSettingTab extends PluginSettingTab {
 					this.plugin.settings.password = String(value)
 					await this.plugin.saveSettings()
 				}));
+
+  new Setting(containerEl)
+    .setName('新创建任务的位置')
+    .addDropdown(dropdown => {
+      dropdown
+        .addOption(NewTaskPosition.LatestTask, '文件最后一个任务之后')
+        .addOption(NewTaskPosition.LatestLine, '文件最后一行')
+        .setValue(this.plugin.settings.task.newTaskPosition)
+        .onChange(async (value: NewTaskPosition) => {
+          this.plugin.settings.task.newTaskPosition = value
+          await this.plugin.saveSettings()
+        })
+    })
 	}
 }
