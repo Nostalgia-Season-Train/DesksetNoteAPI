@@ -122,11 +122,26 @@ export const creatTask = async (path: string, content: string) => {
 
 /* ==== 编辑任务（内容） ==== */
 export const editTask = async (path: string, line: number, newContent: string) => {
-  return
+  let fileLines: string[] = (await app.vault.adapter.read(path)).split('\n')
+
+  const taskObj = await _paraseTask(fileLines[line])
+  if (taskObj === null)
+    return false
+  taskObj.text = newContent
+  fileLines[line] = taskObj.data
+
+  await app.vault.adapter.write(path, fileLines.join('\n'))
 }
 
 
 /* ==== 删除任务 ==== */
 export const deletTask = async (path: string, line: number) => {
-  return
+  let fileLines: string[] = (await app.vault.adapter.read(path)).split('\n')
+
+  const taskObj = await _paraseTask(fileLines[line])
+  if (taskObj === null)
+    return false
+  fileLines.splice(line, 1)
+
+  await app.vault.adapter.write(path, fileLines.join('\n'))
 }
