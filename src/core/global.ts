@@ -14,3 +14,4 @@ export const dataview = getAPI(app) as DataviewApi
 export const datacore = window.datacore
 
 export const thino = (app as any).plugins.plugins['obsidian-memos'] as Record<string, any> | undefined
+export const tasks = (app as any).plugins.plugins['obsidian-tasks-plugin'] as Record<string, any> | undefined

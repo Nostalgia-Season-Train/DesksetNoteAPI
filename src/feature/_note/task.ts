@@ -1,4 +1,6 @@
-import { app, dataview } from 'src/core/global'
+import { app, dataview, tasks } from 'src/core/global'
+
+const tasksAPI = tasks?.apiV1
 
 
 /* ==== 获取某个文件中的所有任务 ==== */
@@ -37,7 +39,6 @@ export const toggleOneTask = async (path: string, line: number): Promise<boolean
   const taskStatus = match[1]
 
   // 通过 Tasks 社区插件切换任务
-  const tasksAPI = (app as any).plugins.plugins['obsidian-tasks-plugin'].apiV1
   if (tasksAPI != undefined || tasksAPI != null) {
     const newTargetLine = tasksAPI.executeToggleTaskDoneCommand(targetLine, path)
     fileLines[line] = newTargetLine
