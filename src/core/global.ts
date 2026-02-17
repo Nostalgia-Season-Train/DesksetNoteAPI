@@ -15,3 +15,11 @@ export const datacore = window.datacore
 
 export const thino = (app as any).plugins.plugins['obsidian-memos'] as Record<string, any> | undefined
 export const tasks = (app as any).plugins.plugins['obsidian-tasks-plugin'] as Record<string, any> | undefined
+
+// 本插件的自指，插件加载时传入引用
+import { DesksetPluginSetting } from './setting'
+
+export const deskset = {
+  self: {} as any,
+  setting: {} as DesksetPluginSetting
+}

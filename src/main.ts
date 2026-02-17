@@ -2,6 +2,7 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 
 import { DesksetPluginSetting as DesksetPluginSettings, NewTaskPosition } from './core/setting'
 import { randomString } from './core/random'
+import { deskset } from './core/global'
 import DesksetNoteAPI from './rpc/api';
 
 const DEFAULT_SETTINGS: DesksetPluginSettings = {
@@ -25,6 +26,9 @@ export default class DesksetPlugin extends Plugin {
 
 		this.api = new DesksetNoteAPI(this.app, this.settings, this)
 		this.app.workspace.on('quit', async () => await this.api.close())
+
+    deskset.self = this
+    deskset.setting = this.settings
 
 		try { await this.api.open() } catch (err) { new Notice(`无法连接数字桌搭\n${err}`) }
 		this.registerInterval(window.setInterval(async () => {
