@@ -1,15 +1,31 @@
 import { app, dataview } from 'src/core/global'
 
-const _getNoteNum = async (): Promise<number> => {
-  return dataview.pages().length
-}
+const _loopVault = async () => {
+  let noteNum = 0
+  let attachNum = 0
+  const today = (new Date()).setHours(0, 0, 0, 0)  // 今天零点
+  let noteTodayNum = 0
+  let attachTodayNum = 0
 
-const _getAttachNum = async (): Promise<number> => {
-  let num = 0
   for (const file of app.vault.getFiles()) {
-    if (file.extension != 'md') num++
+    if (file.extension === 'md') {
+      noteNum++
+      if (file.stat.ctime > today)
+        noteTodayNum++
+    }
+    else {
+      attachNum++
+      if (file.stat.ctime > today)
+        attachTodayNum++
+    }
   }
-  return num
+
+  return {
+    noteNum: noteNum,
+    attachNum: attachNum,
+    noteTodayNum: noteTodayNum,
+    attachTodayNum: attachTodayNum
+  }
 }
 
 const _getUsedayNum = async (): Promise<number> => {
@@ -22,9 +38,12 @@ const _getUsedayNum = async (): Promise<number> => {
 
 /* ==== 仓库信息 ==== */
 export const getVaultInfo = async () => {
+  const loopStats = await _loopVault()
   return {
-    note_num: await _getNoteNum(),                           // 笔记总数
-    attach_num: await _getAttachNum(),                       // 附件总数
+    note_num: loopStats.noteNum,                             // 笔记总数
+    attach_num: loopStats.attachNum,                         // 附件总数
+    note_today_num: loopStats.noteTodayNum,                  // 今天创建的笔记总数
+    attach_today_num: loopStats.attachTodayNum,              // 今天创建的附件总数
     useday_num: await _getUsedayNum(),                       // 使用天数
     tag_num: dataview.pages().file.etags.distinct().length,  // 标签总数
     task_num: dataview.pages().file.tasks.length             // 任务总数
