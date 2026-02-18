@@ -1,3 +1,5 @@
+import { DesksetError } from 'src/core/error'
+
 export default class RpcServer {
   private _websocket: WebSocket
   private _instance: any
@@ -27,8 +29,9 @@ export default class RpcServer {
         id: request.id,
         payload: result,
         error: {
-          name: error?.name,
+          is_deskset_error: error instanceof DesksetError,
           message: error?.message,
+          name: error?.name,
           stack: error?.stack
         }
       })
