@@ -28,12 +28,12 @@ export default class RpcServer {
       JSON.stringify({
         id: request.id,
         payload: result,
-        error: {
+        error: error != undefined ? {
           is_deskset_error: error instanceof DesksetError,
           message: error?.message,
           name: error?.name,
           stack: error?.stack
-        }
+        } : null
       })
     )
   }
