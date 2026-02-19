@@ -175,7 +175,7 @@ export const statsFile = async (rawFilterGroup: FilterGroup) => {
       'file.basename': rawFile.basename,
       'file.extension': rawFile.extension,
       'file.fullname': `${rawFile.basename}.${rawFile.extension}`,
-      'file.folder': rawFile.parent?.name ?? '',
+      'file.folder': rawFile.parent?.name ?? '',  // 明确空字符串语义：文件在仓库根文件夹
       'file.path': rawFile.path,
       'file.ctime': rawFile.stat.ctime,
       'file.mtime': rawFile.stat.mtime,
