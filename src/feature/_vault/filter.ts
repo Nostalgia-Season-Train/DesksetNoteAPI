@@ -1,4 +1,4 @@
-import { dataview } from 'src/core/global'
+import { app } from 'src/core/global'
 
 
 /* ==== 过滤 ==== */
@@ -153,24 +153,33 @@ export const statsFile = async (rawFilterGroup: FilterGroup) => {
   const filterGroup = await _preprocessFilterGroup(rawFilterGroup)
 
   // dv.pages('"folder"') 限制范围，方便测试
-  for (const page of dataview.pages()) {
+  for (const tfile of app.vault.getFiles()) {
     // 1、预处理文件列表
-    const rawFile = page.file
-    // 将 frontmatter 中的键（属性名）全部转换成小写
-    const frontmatter = Object.fromEntries(Object.entries(rawFile.frontmatter).map(([k, v]) => [k.toLowerCase(), v]))
+    const rawFile = tfile
+    const rawFileCache = app.metadataCache.getFileCache(rawFile)
+    let frontmatter: Record<string, any> = {}  // 文件前言
+    let tags: string[] = []                    // 文件标签
+    if (rawFileCache !== null) {
+      if (rawFileCache.frontmatter !== undefined) {
+        // 将 frontmatter 中的键（属性名）全部转换成小写
+        frontmatter = Object.fromEntries(Object.entries(rawFileCache.frontmatter).map(([k, v]) => [k.toLowerCase(), v]))
+      }
+      if (rawFileCache.tags !== undefined) {
+        tags = rawFileCache.tags.map(tag => tag.tag)
+      }
+    }
     const file = {
       ...frontmatter,
       'file.name': rawFile.name,
-      'file.basename': rawFile.name,
-      'file.ext': rawFile.ext,
-      'file.fullname': `${rawFile.name}.${rawFile.ext}`,
-      'file.folder': rawFile.folder,
+      'file.basename': rawFile.basename,
+      'file.ext': rawFile.extension,  // 跟 Obsidian 数据库筛选扩展名 file.ext 保持一致
+      'file.fullname': `${rawFile.basename}.${rawFile.extension}`,
+      'file.folder': rawFile.parent?.name ?? '',
       'file.path': rawFile.path,
-      'file.ctime': Number(rawFile.ctime),
-      'file.mtime': Number(rawFile.mtime),
-      'file.size': rawFile.size,
-      'file.aliases': rawFile.aliases.values,
-      'file.tags': rawFile.tags.values
+      'file.ctime': rawFile.stat.ctime,
+      'file.mtime': rawFile.stat.mtime,
+      'file.size': rawFile.stat.size,
+      'file.tags': tags
     }
 
     // 2、判断
