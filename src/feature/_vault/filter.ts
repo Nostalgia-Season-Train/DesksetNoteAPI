@@ -168,11 +168,12 @@ export const statsFile = async (rawFilterGroup: FilterGroup) => {
         tags = rawFileCache.tags.map(tag => tag.tag)
       }
     }
+    // 不要参考 Obsidian 数据库筛选命名...过于混乱，file.name 是 tfile.basename，file.fullname 才是 tfile.name
     const file = {
       ...frontmatter,
-      'file.name': rawFile.name,
+      // 'file.name'  // 暂定
       'file.basename': rawFile.basename,
-      'file.ext': rawFile.extension,  // 跟 Obsidian 数据库筛选扩展名 file.ext 保持一致
+      'file.extension': rawFile.extension,
       'file.fullname': `${rawFile.basename}.${rawFile.extension}`,
       'file.folder': rawFile.parent?.name ?? '',
       'file.path': rawFile.path,
