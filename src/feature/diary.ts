@@ -8,16 +8,6 @@ const MONTHID_FORMAT = 'YYYYMM'  // 某月 ID：格式 YYYYMM
 const NOTE_EXTENSION = 'md'
 const DEFAULT_DIARY_FORMAT = 'YYYY-MM-DD'
 
-const _getDiarySetting = async (): Promise<{ format: string, folder: string, template: string }> => {
-  const { internalPlugins } = app as any
-  const { format, folder, template } = internalPlugins.getPluginById('daily-notes')?.instance?.options || {}
-  return {
-    format: format || DEFAULT_DIARY_FORMAT,
-    folder: folder || '',
-    template: template || ''
-  }
-}
-
 const _parseDiary = async (id: string, tfile: TFile) => {
   const name = tfile.basename
   const path = tfile.path
@@ -34,10 +24,22 @@ const _parseDiary = async (id: string, tfile: TFile) => {
 }
 
 
+/* ==== 获取 日记插件 设置 ==== */
+export const getDiarySetting = async (): Promise<{ format: string, folder: string, template: string }> => {
+  const { internalPlugins } = app as any
+  const { format, folder, template } = internalPlugins.getPluginById('daily-notes')?.instance?.options || {}
+  return {
+    format: format || DEFAULT_DIARY_FORMAT,
+    folder: folder || '',
+    template: template || ''
+  }
+}
+
+
 /* ==== 获取 某天 日记 ==== */
 export const getOneDiary = async (dayid: string) => {
   const day = moment(dayid, DAYID_FORMAT)
-  const { format, folder } = await _getDiarySetting()
+  const { format, folder } = await getDiarySetting()
   const path = `${folder}/${day.format(format)}.${NOTE_EXTENSION}`
   const diary = app.vault.getFileByPath(path)
   return diary != null ? await _parseDiary(day.format(DAYID_FORMAT), diary) : null

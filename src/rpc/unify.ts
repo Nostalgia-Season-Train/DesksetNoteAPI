@@ -2,7 +2,7 @@ import { App } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
 import { openObsidian, openObsidianFile } from 'src/feature/window'
-import { getOneDiary, getAllDiarysInOneMonth } from 'src/feature/diary'
+import { getDiarySetting, getOneDiary, getAllDiarysInOneMonth } from 'src/feature/diary'
 import { getAllTasks, toggleTask, creatTask, editTask, deletTask } from 'src/feature/_note/task'
 import { getSuggestions } from 'src/feature/suggest'
 import { statsFile } from 'src/feature/_vault/filter'
@@ -32,6 +32,7 @@ export default class Unify {
   suggest_by_switcher = getSuggestions
 
   /* --- 日记 --- */
+  get_diary_setting = getDiarySetting
   read_diary = getOneDiary
   list_diarys_in_a_month = getAllDiarysInOneMonth
 
