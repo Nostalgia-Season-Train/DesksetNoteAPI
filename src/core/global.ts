@@ -17,9 +17,19 @@ export const thino = (app as any).plugins.plugins['obsidian-memos'] as Record<st
 export const tasks = (app as any).plugins.plugins['obsidian-tasks-plugin'] as Record<string, any> | undefined
 
 // 本插件的自指，插件加载时传入引用
-import { DesksetPluginSetting } from './setting'
+import { DesksetPluginSetting, NewTaskPosition } from './setting'
+import { randomString } from './random'
 
-export const deskset = {
-  self: {} as any,
-  setting: {} as DesksetPluginSetting
+export const deskset: {
+  setting: DesksetPluginSetting
+} = {
+  setting: {
+    host: '127.0.0.1',
+    port: 6528,
+    username: 'noteapi-user' + randomString(5, 10),
+    password: 'noteapi-pswd' + randomString(10, 20),
+    task: {
+      newTaskPosition: NewTaskPosition.LatestTask
+    }
+  }
 }
