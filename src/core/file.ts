@@ -1,4 +1,4 @@
-import { app } from './global'
+import { app, dataview } from './global'
 import { FileNotExistError, FileAlreadyExistError } from './error'
 
 
@@ -8,6 +8,19 @@ export const readTFile = async (path: string) => {
   if (tfile === null)
     throw new FileNotExistError(path)
   return tfile
+}
+
+
+/* ==== 读取 Dataview Page ==== */
+export const readDataviewPage = async (path: string) => {
+  const page = dataview.page(path)
+  if (page === undefined)
+    throw new FileNotExistError(path)
+  // dataview 可以不带 .md 后缀，但 getFileByPath 需要
+  // 此步明确要求路径带上后缀
+  if (page.file.path !== path)
+    throw new FileNotExistError(path)
+  return page
 }
 
 

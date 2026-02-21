@@ -1,5 +1,6 @@
 import { NewTaskPosition } from 'src/core/setting'
-import { app, dataview, tasks, deskset } from 'src/core/global'
+import { app, tasks, deskset } from 'src/core/global'
+import { readTFile, readDataviewPage } from 'src/core/file'
 
 const tasksAPI = tasks?.apiV1
 
@@ -50,11 +51,8 @@ export const getAllTasks = async (path: string): Promise<{
   line: number
   status: string,
   content: string
-}[] | null> => {
-  const page = dataview.page(path)
-  // 文件不存在返回 null
-  if (page == undefined)
-    return null
+}[]> => {
+  const page = await readDataviewPage(path)
 
   const tasks = page.file.tasks.values.map((item: any) => {
     return {
@@ -69,7 +67,8 @@ export const getAllTasks = async (path: string): Promise<{
 
 /* ==== 切换某个文件中的某行任务 ==== */
 export const toggleTask = async (path: string, line: number) => {
-  const fileLines: string[] = (await app.vault.adapter.read(path)).split('\n')
+  const tfile = await readTFile(path)
+  const fileLines: string[] = (await app.vault.read(tfile)).split('\n')
   const targetLine: string = fileLines[line]
   const match = targetLine.match(/^\ *\-\ \[(.)\]\ /)  // ^ 从字符串头开始匹配
 
@@ -105,7 +104,8 @@ export const toggleTask = async (path: string, line: number) => {
 
 /* ==== 创建任务 ==== */
 export const creatTask = async (path: string, content: string) => {
-  let fileLines: string[] = (await app.vault.adapter.read(path)).split('\n')
+  const tfile = await readTFile(path)
+  let fileLines: string[] = (await app.vault.read(tfile)).split('\n')
 
   // 优先创建在文件最后一个任务之后
   if (deskset.setting.task.newTaskPosition === NewTaskPosition.LatestTask) {
@@ -135,7 +135,8 @@ export const creatTask = async (path: string, content: string) => {
 
 /* ==== 编辑任务（内容） ==== */
 export const editTask = async (path: string, line: number, newContent: string) => {
-  let fileLines: string[] = (await app.vault.adapter.read(path)).split('\n')
+  const tfile = await readTFile(path)
+  let fileLines: string[] = (await app.vault.read(tfile)).split('\n')
 
   const taskObj = await _paraseTask(fileLines[line])
   if (taskObj === null)
@@ -144,12 +145,14 @@ export const editTask = async (path: string, line: number, newContent: string) =
   fileLines[line] = taskObj.data
 
   await app.vault.adapter.write(path, fileLines.join('\n'))
+  return true
 }
 
 
 /* ==== 删除任务 ==== */
 export const deletTask = async (path: string, line: number) => {
-  let fileLines: string[] = (await app.vault.adapter.read(path)).split('\n')
+  const tfile = await readTFile(path)
+  let fileLines: string[] = (await app.vault.read(tfile)).split('\n')
 
   const taskObj = await _paraseTask(fileLines[line])
   if (taskObj === null)
@@ -157,4 +160,5 @@ export const deletTask = async (path: string, line: number) => {
   fileLines.splice(line, 1)
 
   await app.vault.adapter.write(path, fileLines.join('\n'))
+  return true
 }
