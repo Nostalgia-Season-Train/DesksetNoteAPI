@@ -1,6 +1,7 @@
 // 代码参考：https://github.com/liamcain/obsidian-daily-notes-interface
 import { TFile, moment } from 'obsidian'
 import { app } from 'src/core/global'
+import { readTFile } from 'src/core/file'
 import { getAllTasks } from './_note/task'
 
 const DAYID_FORMAT = 'YYYYMMDD'  // 某天 ID：格式 YYYYMMDD
@@ -38,25 +39,30 @@ export const getDiarySetting = async (): Promise<{ format: string, folder: strin
 
 /* ==== 获取 某天 日记 ==== */
 export const getOneDiary = async (dayid: string) => {
-  const day = moment(dayid, DAYID_FORMAT)
   const { format, folder } = await getDiarySetting()
+
+  const day = moment(dayid, DAYID_FORMAT)
   const path = `${folder}/${day.format(format)}.${NOTE_EXTENSION}`
-  const diary = app.vault.getFileByPath(path)
-  return diary != null ? await _parseDiary(day.format(DAYID_FORMAT), diary) : null
+  const rawDiary = await readTFile(path)
+
+  return await _parseDiary(day.format(DAYID_FORMAT), rawDiary)
 }
 
 
 /* ==== 获取 某月中的所有 日记 ==== */
 export const getAllDiarysInOneMonth = async (monthid: string) => {
+  const { format, folder } = await getDiarySetting()
   const month = moment(monthid, MONTHID_FORMAT)
 
   // 直接生成 dateUID 查找，最多 31 次
   let diarysInMonth = []
+
   for (let num = 1; num <= moment(month).daysInMonth(); num++) {
-    const dayid = moment(month).date(num).format(DAYID_FORMAT)
-    const diary = await getOneDiary(dayid)
-    if (diary != null) {
-      diarysInMonth.push(diary)
+    const day = moment(month).date(num)
+    const path = `${folder}/${day.format(format)}.${NOTE_EXTENSION}`
+    const rawDiary = app.vault.getFileByPath(path)
+    if (rawDiary != null) {
+      diarysInMonth.push(await _parseDiary(day.format(DAYID_FORMAT), rawDiary))
     }
   }
 
