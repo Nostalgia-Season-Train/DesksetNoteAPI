@@ -3,7 +3,7 @@ import { app } from 'src/core/global'
 
 
 /* ==== 仓库热点 ==== */
-export const getHeatObj = async (startDay: string, endDay: string) => {
+export const getHeats = async (startDay: string, endDay: string) => {
   const startMoment = moment(startDay, 'YYYYMMDD')
   const endMoment = moment(endDay, 'YYYYMMDD')
   const dayNum = endMoment.diff(startMoment, 'day') + 1
@@ -23,5 +23,5 @@ export const getHeatObj = async (startDay: string, endDay: string) => {
     }
   }
 
-  return heatObj
+  return Object.entries(heatObj).map(([key, value]) => ({ date: key, number: value }))
 }

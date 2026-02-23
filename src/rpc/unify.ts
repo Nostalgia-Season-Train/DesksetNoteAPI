@@ -7,7 +7,7 @@ import { getAllTasks, toggleTask, creatTask, editTask, deletTask } from 'src/fea
 import { getSuggestions } from 'src/feature/suggest'
 import { statsFile } from 'src/feature/_vault/filter'
 import { getVaultInfo, getActiveFile } from 'src/feature/_vault/info'
-import { getHeatObj } from 'src/feature/_vault/heatmap'
+import { getHeats } from 'src/feature/_vault/heatmap'
 
 
 export default class Unify {
@@ -25,7 +25,7 @@ export default class Unify {
 
   /* --- 仓库 --- */
   get_vault_status = getVaultInfo
-  get_heatmap = getHeatObj
+  get_heatmap = getHeats
   get_active_file = getActiveFile
 
   /* --- 查询建议 --- */
