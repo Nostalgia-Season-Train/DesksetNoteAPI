@@ -1,5 +1,6 @@
 import { App, Plugin, Notice, request, moment } from 'obsidian'
 import { DesksetPluginSetting as Setting } from 'src/core/setting'
+import { DESKSET_NOTEAPI_VERSION } from 'src/core/setting'
 
 import Unify from './unify'
 import RpcServer from './rpc'
@@ -63,7 +64,8 @@ export default class DesksetNoteAPI {
       contentType: 'application/x-www-form-urlencoded',
       body: new URLSearchParams({
         username: this._setting.username,
-        password: this._setting.password
+        password: this._setting.password,
+        version: DESKSET_NOTEAPI_VERSION
       }).toString(),
       headers: {
         'Sec-Deskset-NoteAPI': 'PNA'
