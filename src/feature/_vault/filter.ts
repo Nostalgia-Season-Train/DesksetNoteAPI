@@ -159,6 +159,7 @@ export const statsFile = async (rawFilterGroup: FilterGroup) => {
     const rawFileCache = app.metadataCache.getFileCache(rawFile)
     let frontmatter: Record<string, any> = {}  // 文件前言
     let tags: string[] = []                    // 文件标签
+    let tasks: { line: number, status: string, text: string }[] = []  // 文件任务
     if (rawFileCache !== null) {
       if (rawFileCache.frontmatter !== undefined) {
         // 将 frontmatter 中的键（属性名）全部转换成小写
@@ -166,6 +167,24 @@ export const statsFile = async (rawFilterGroup: FilterGroup) => {
       }
       if (rawFileCache.tags !== undefined) {
         tags = rawFileCache.tags.map(tag => tag.tag)
+      }
+      if (rawFileCache.listItems !== undefined) {
+        const rawFileData = await app.vault.cachedRead(rawFile)
+        for (const listItem of rawFileCache.listItems) {
+          if (listItem.task === undefined)
+            continue
+          // ...Dataview 也用正则匹配 taskText 任务文本
+            // 代码：export const LIST_ITEM_REGEX = /^[\s>]*(\d+\.|\d+\)|\*|-|\+)\s*(\[.{0,1}\])?\s*(.*)$/mu;
+            // 来源：https://github.com/blacksmithgu/obsidian-dataview/blob/master/src/data-import/markdown-file.ts#L183
+          const taskData = rawFileData.substring(listItem.position.start.offset, listItem.position.end.offset)
+          const taskDataMatch = taskData.match(/^\ *\-\ \[(.)\]\ ([\s\S]*)/)
+          if (taskDataMatch === null)
+            continue
+          const taskLine = listItem.position.start.line
+          const taskStatus = taskDataMatch[1]
+          const taskText = taskDataMatch[2]
+          tasks.push({ line: taskLine, status: taskStatus, text: taskText })
+        }
       }
     }
     // 不要参考 Obsidian 数据库筛选命名...过于混乱，file.name 是 tfile.basename，file.fullname 才是 tfile.name
@@ -180,7 +199,8 @@ export const statsFile = async (rawFilterGroup: FilterGroup) => {
       'file.ctime': rawFile.stat.ctime,
       'file.mtime': rawFile.stat.mtime,
       'file.size': rawFile.stat.size,
-      'file.tags': tags
+      'file.tags': tags,
+      'file.tasks': tasks
     }
 
     // 2、判断
