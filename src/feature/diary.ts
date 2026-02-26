@@ -4,8 +4,8 @@ import { app } from 'src/core/global'
 import { readTFile } from 'src/core/file'
 import { getAllTasks } from './_note/task'
 
-const DAYID_FORMAT = 'YYYYMMDD'  // 某天 ID：格式 YYYYMMDD
-const MONTHID_FORMAT = 'YYYYMM'  // 某月 ID：格式 YYYYMM
+const DAY_FORMAT = 'YYYYMMDD'  // 某天：格式 YYYYMMDD
+const MONTH_FORMAT = 'YYYYMM'  // 某月：格式 YYYYMM
 const NOTE_EXTENSION = 'md'
 const DEFAULT_DIARY_FORMAT = 'YYYY-MM-DD'
 
@@ -38,31 +38,31 @@ export const getDiarySetting = async (): Promise<{ format: string, folder: strin
 
 
 /* ==== 获取 某天 日记 ==== */
-export const getOneDiary = async (dayid: string) => {
+export const getOneDiary = async (day: string) => {
   const { format, folder } = await getDiarySetting()
 
-  const day = moment(dayid, DAYID_FORMAT)
-  const path = `${folder}/${day.format(format)}.${NOTE_EXTENSION}`
+  const dayObj = moment(day, DAY_FORMAT)
+  const path = `${folder}/${dayObj.format(format)}.${NOTE_EXTENSION}`
   const rawDiary = await readTFile(path)
 
-  return await _parseDiary(day.format(DAYID_FORMAT), rawDiary)
+  return await _parseDiary(dayObj.format(DAY_FORMAT), rawDiary)
 }
 
 
 /* ==== 获取 某月中的所有 日记 ==== */
-export const getAllDiarysInOneMonth = async (monthid: string) => {
+export const getAllDiarysInOneMonth = async (month: string) => {
   const { format, folder } = await getDiarySetting()
-  const month = moment(monthid, MONTHID_FORMAT)
+  const monthObj = moment(month, MONTH_FORMAT)
 
   // 直接生成 dateUID 查找，最多 31 次
   let diarysInMonth = []
 
-  for (let num = 1; num <= moment(month).daysInMonth(); num++) {
-    const day = moment(month).date(num)
-    const path = `${folder}/${day.format(format)}.${NOTE_EXTENSION}`
+  for (let num = 1; num <= moment(monthObj).daysInMonth(); num++) {
+    const dayObj = moment(monthObj).date(num)
+    const path = `${folder}/${dayObj.format(format)}.${NOTE_EXTENSION}`
     const rawDiary = app.vault.getFileByPath(path)
     if (rawDiary != null) {
-      diarysInMonth.push(await _parseDiary(day.format(DAYID_FORMAT), rawDiary))
+      diarysInMonth.push(await _parseDiary(dayObj.format(DAY_FORMAT), rawDiary))
     }
   }
 

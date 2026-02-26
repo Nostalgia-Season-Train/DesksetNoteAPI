@@ -23,5 +23,5 @@ export const getHeats = async (startDay: string, endDay: string) => {
     }
   }
 
-  return Object.entries(heatObj).map(([key, value]) => ({ date: key, number: value }))
+  return Object.entries(heatObj).map(([key, value]) => ({ day: key, num: value }))
 }
