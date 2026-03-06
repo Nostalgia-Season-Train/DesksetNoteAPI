@@ -47,7 +47,7 @@ const _structTask = async (text: string) => {
 
 
 /* ==== 获取某个文件中的所有任务 ==== */
-export const getAllTasks = async (path: string): Promise<{
+export const listTasks = async (path: string): Promise<{
   line: number
   status: string,
   content: string
@@ -103,17 +103,24 @@ export const toggleTask = async (path: string, line: number) => {
 
 
 /* ==== 创建任务 ==== */
-export const creatTask = async (path: string, content: string) => {
+export const creatTask = async (path: string, text: string, line: number | null = null) => {
   const tfile = await readTFile(path)
   let fileLines: string[] = (await app.vault.read(tfile)).split('\n')
 
+  // 在第 line 行创建（插入）任务
+  if (line !== null) {
+    fileLines.splice(line, 0, (await _structTask(text)).data)
+    await app.vault.adapter.write(path, fileLines.join('\n'))
+    return
+  }
+
   // 优先创建在文件最后一个任务之后
   if (deskset.setting.task.newTaskPosition === NewTaskPosition.LatestTask) {
-    const tasks = await getAllTasks(path)
+    const tasks = await listTasks(path)
     if (tasks !== null && tasks.length !== 0) {
       const latestTaskLine = tasks[tasks.length - 1].line
       // latestTaskLine + 1 >= fileLines.length：不用管，插入在数组结尾
-      fileLines.splice(latestTaskLine + 1, 0, (await _structTask(content)).data)
+      fileLines.splice(latestTaskLine + 1, 0, (await _structTask(text)).data)
       await app.vault.adapter.write(path, fileLines.join('\n'))
       return
     }
@@ -121,12 +128,12 @@ export const creatTask = async (path: string, content: string) => {
 
   // 末尾是空行
   if (fileLines[fileLines.length - 1] === '') {
-    fileLines[fileLines.length - 1] = (await _structTask(content)).data
+    fileLines[fileLines.length - 1] = (await _structTask(text)).data
     fileLines.push('')
   }
   // 末尾不是空行
   else {
-    fileLines.push((await _structTask(content)).data)
+    fileLines.push((await _structTask(text)).data)
   }
 
   await app.vault.adapter.write(path, fileLines.join('\n'))
@@ -134,14 +141,14 @@ export const creatTask = async (path: string, content: string) => {
 
 
 /* ==== 编辑任务（内容） ==== */
-export const editTask = async (path: string, line: number, newContent: string) => {
+export const editTask = async (path: string, line: number, newText: string) => {
   const tfile = await readTFile(path)
   let fileLines: string[] = (await app.vault.read(tfile)).split('\n')
 
   const taskObj = await _paraseTask(fileLines[line])
   if (taskObj === null)
     return false
-  taskObj.text = newContent
+  taskObj.text = newText
   fileLines[line] = taskObj.data
 
   await app.vault.adapter.write(path, fileLines.join('\n'))

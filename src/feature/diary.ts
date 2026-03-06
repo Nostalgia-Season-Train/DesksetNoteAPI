@@ -2,7 +2,7 @@
 import { TFile, moment } from 'obsidian'
 import { app } from 'src/core/global'
 import { readTFile } from 'src/core/file'
-import { getAllTasks } from './_note/task'
+import { listTasks } from './_note/task'
 
 const DAY_FORMAT = 'YYYYMMDD'  // 某天：格式 YYYYMMDD
 const MONTH_FORMAT = 'YYYYMM'  // 某月：格式 YYYYMM
@@ -20,7 +20,7 @@ const _parseDiary = async (id: string, tfile: TFile) => {
     path: path,
     text: text,
     content: content,
-    tasks: await getAllTasks(path) ?? []
+    tasks: await listTasks(path) ?? []
   }
 }
 

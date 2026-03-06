@@ -2,7 +2,7 @@ import { App } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
 import { getDiarySetting, getOneDiary, getAllDiarysInOneMonth } from 'src/feature/diary'
-import { getAllTasks, toggleTask, creatTask, editTask, deletTask } from 'src/feature/_note/task'
+import { listTasks, toggleTask, creatTask, editTask, deletTask } from 'src/feature/_note/task'
 import { getSuggestions } from 'src/feature/suggest'
 import { statsFile } from 'src/feature/_vault/filter'
 import { getVaultInfo, getActiveFile } from 'src/feature/_vault/info'
@@ -37,15 +37,15 @@ export default class Unify {
   read_diary = getOneDiary
   list_diarys_in_a_month = getAllDiarysInOneMonth
 
-  /* --- 任务 --- */
-  get_all_tasks = getAllTasks
-  toggle_task = toggleTask
-  create_task = creatTask
-  edit_task = editTask
-  delete_task = deletTask
-
   /* --- 数据分析 --- */
   filter_frontmatter = statsFile
+
+  /* --- 任务 Task --- */
+  list_tasks = listTasks
+  create_task = creatTask
+  edit_task = editTask
+  toggle_task = toggleTask
+  delete_task = deletTask
 
   /* --- 命令 Command --- */
   list_commands = getAllCommands
