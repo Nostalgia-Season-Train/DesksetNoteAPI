@@ -1,13 +1,14 @@
 import { App } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
-import { openObsidian, openObsidianFile } from 'src/feature/winpage'
 import { getDiarySetting, getOneDiary, getAllDiarysInOneMonth } from 'src/feature/diary'
 import { getAllTasks, toggleTask, creatTask, editTask, deletTask } from 'src/feature/_note/task'
 import { getSuggestions } from 'src/feature/suggest'
 import { statsFile } from 'src/feature/_vault/filter'
 import { getVaultInfo, getActiveFile } from 'src/feature/_vault/info'
 import { getHeats } from 'src/feature/_vault/heatmap'
+import { getAllCommands, executeCommand } from 'src/feature/command'
+import { openObsidian, openObsidianFile } from 'src/feature/winpage'
 
 
 export default class Unify {
@@ -45,6 +46,10 @@ export default class Unify {
 
   /* --- 数据分析 --- */
   filter_frontmatter = statsFile
+
+  /* --- 命令 Command --- */
+  list_commands = getAllCommands
+  execute_command = executeCommand
 
   /* --- 窗口页面 Winpage --- */
   open_vault_on_obsidian = openObsidian
