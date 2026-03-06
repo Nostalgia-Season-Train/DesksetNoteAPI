@@ -1,7 +1,7 @@
 import { App } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
-import { openObsidian, openObsidianFile } from 'src/feature/window'
+import { openObsidian, openObsidianFile } from 'src/feature/winpage'
 import { getDiarySetting, getOneDiary, getAllDiarysInOneMonth } from 'src/feature/diary'
 import { getAllTasks, toggleTask, creatTask, editTask, deletTask } from 'src/feature/_note/task'
 import { getSuggestions } from 'src/feature/suggest'
@@ -43,10 +43,10 @@ export default class Unify {
   edit_task = editTask
   delete_task = deletTask
 
-  /* --- Obsidian 窗口 --- */
-  open_vault = openObsidian
-  open_in_obsidian = openObsidianFile
-
   /* --- 数据分析 --- */
   filter_frontmatter = statsFile
+
+  /* --- 窗口页面 Winpage --- */
+  open_vault_on_obsidian = openObsidian
+  open_file_on_obsidian = openObsidianFile
 }

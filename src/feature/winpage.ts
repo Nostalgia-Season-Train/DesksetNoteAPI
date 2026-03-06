@@ -9,6 +9,7 @@ export const openObsidian = async () => {
   // Obsidian 需要处于最小化窗口状态，才会跳转到前台
   await _electron_win.minimize()
   await _electron_win.maximize()
+  return true
 }
 
 
