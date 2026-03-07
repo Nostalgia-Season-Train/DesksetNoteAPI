@@ -106,9 +106,9 @@ export const toggleTask = async (path: string, line: number) => {
 /* ==== 创建任务 ==== */
 export const creatTask = async (
   path: string,
-  line: number | null = null,
-  status: string | null = null,
-  text: string | null = null
+  line: number | null,
+  status: string | null,
+  text: string | null
 ) => {
   const tfile = await readTFile(path)
   let fileLines: string[] = (await app.vault.read(tfile)).split('\n')
@@ -152,14 +152,26 @@ export const creatTask = async (
 
 
 /* ==== 编辑任务（内容） ==== */
-export const editTask = async (path: string, line: number, newText: string) => {
+export const editTask = async (
+  path: string,
+  line: number,
+  newStatus: string | null,
+  newText: string | null
+) => {
   const tfile = await readTFile(path)
   let fileLines: string[] = (await app.vault.read(tfile)).split('\n')
 
   const taskObj = await _paraseTask(fileLines[line])
   if (taskObj === null)
     return false
-  taskObj.text = newText
+  if (newStatus === null && newText === null)
+    return true  // 都为空则不修改
+  if (newStatus !== null && newStatus.length !== 1)
+    return false  // status 只有一个字符，直接返回失败
+  if (newStatus !== null)
+    taskObj.status = newStatus
+  if (newText !== null)
+    taskObj.text = newText
   fileLines[line] = taskObj.data
 
   await app.vault.adapter.write(path, fileLines.join('\n'))
