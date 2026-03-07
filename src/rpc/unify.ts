@@ -8,7 +8,7 @@ import { statsFile } from 'src/feature/_vault/filter'
 import { getVaultInfo, getActiveFile } from 'src/feature/_vault/info'
 import { getHeats } from 'src/feature/_vault/heatmap'
 import { getAllCommands, executeCommand } from 'src/feature/command'
-import { openObsidian, openObsidianFile } from 'src/feature/winpage'
+import { openOnObsidian, openFileOnObsidian } from 'src/feature/winpage'
 
 
 export default class Unify {
@@ -52,6 +52,6 @@ export default class Unify {
   execute_command = executeCommand
 
   /* --- 窗口页面 Winpage --- */
-  open_vault_on_obsidian = openObsidian
-  open_file_on_obsidian = openObsidianFile
+  open_on_obsidian = openOnObsidian
+  open_file_on_obsidian = openFileOnObsidian
 }
