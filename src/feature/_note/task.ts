@@ -31,9 +31,10 @@ const _paraseTask = async (data: string) => {
   }
 }
 
-const _structTask = async (text: string) => {
+const _structTask = async () => {
   const box = { prefix: '- [', suffix: '] ' }
   const status = ' '
+  const text = ''
 
   return {
     get data() {
@@ -50,7 +51,7 @@ const _structTask = async (text: string) => {
 export const listTasks = async (path: string): Promise<{
   line: number
   status: string,
-  content: string
+  text: string
 }[]> => {
   const page = await readDataviewPage(path)
 
@@ -58,7 +59,7 @@ export const listTasks = async (path: string): Promise<{
     return {
       line: item.line,
       status: item.status,
-      content: item.text.endsWith('\n') ? item.text.slice(0, -1) : item.text  // dataview 返回的 task.text 有时存在换行符
+      text: item.text.endsWith('\n') ? item.text.slice(0, -1) : item.text  // dataview 返回的 task.text 有时存在换行符
     }
   })
   return tasks
@@ -103,13 +104,23 @@ export const toggleTask = async (path: string, line: number) => {
 
 
 /* ==== 创建任务 ==== */
-export const creatTask = async (path: string, text: string, line: number | null = null) => {
+export const creatTask = async (
+  path: string,
+  line: number | null = null,
+  status: string | null = null,
+  text: string | null = null
+) => {
   const tfile = await readTFile(path)
   let fileLines: string[] = (await app.vault.read(tfile)).split('\n')
+  const task = await _structTask()
+  if (status !== null)
+    task.status = status
+  if (text !== null)
+    task.text = text
 
   // 在第 line 行创建（插入）任务
   if (line !== null) {
-    fileLines.splice(line, 0, (await _structTask(text)).data)
+    fileLines.splice(line, 0, task.data)
     await app.vault.adapter.write(path, fileLines.join('\n'))
     return
   }
@@ -120,7 +131,7 @@ export const creatTask = async (path: string, text: string, line: number | null 
     if (tasks !== null && tasks.length !== 0) {
       const latestTaskLine = tasks[tasks.length - 1].line
       // latestTaskLine + 1 >= fileLines.length：不用管，插入在数组结尾
-      fileLines.splice(latestTaskLine + 1, 0, (await _structTask(text)).data)
+      fileLines.splice(latestTaskLine + 1, 0, task.data)
       await app.vault.adapter.write(path, fileLines.join('\n'))
       return
     }
@@ -128,12 +139,12 @@ export const creatTask = async (path: string, text: string, line: number | null 
 
   // 末尾是空行
   if (fileLines[fileLines.length - 1] === '') {
-    fileLines[fileLines.length - 1] = (await _structTask(text)).data
+    fileLines[fileLines.length - 1] = task.data
     fileLines.push('')
   }
   // 末尾不是空行
   else {
-    fileLines.push((await _structTask(text)).data)
+    fileLines.push(task.data)
   }
 
   await app.vault.adapter.write(path, fileLines.join('\n'))
