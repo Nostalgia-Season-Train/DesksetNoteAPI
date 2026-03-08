@@ -70,7 +70,7 @@ export const createDiary = async (day: string) => {
 
   // 代码来源：https://github.com/liamcain/obsidian-daily-notes-interface/blob/main/src/daily.ts#L28
   try {
-    return await app.vault.create(
+    await app.vault.create(
       path,
       templateText
         .replace(/{{\s*date\s*}}/gi, name)
@@ -103,9 +103,23 @@ export const createDiary = async (day: string) => {
           dayObj.clone().add(1, 'd').format(setFormat)
         )
     )
+    return true  // Obsidian 创建文件，要等 100ms 左右建立缓存后才能读取
   } catch (err) {
     throw new DesksetError(`Failed to create file: '${path}'.\nReason: ${err?.message}`)
   }
+}
+
+
+/* ==== 写入 某天 日记 ==== */
+export const writeDiary = async (day: string, newData: string) => {
+  const { format, folder } = await getDiarySetting()
+
+  const dayObj = moment(day, DAY_FORMAT)
+  const path = `${folder}/${dayObj.format(format)}.${NOTE_EXTENSION}`
+  const rawDiary = await readTFile(path)
+  await app.vault.adapter.write(rawDiary.path, newData)  // - [ ] 后面统一到 src/core/file 里
+
+  return true  // 原因同上
 }
 
 
