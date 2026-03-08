@@ -123,6 +123,19 @@ export const writeDiary = async (day: string, newData: string) => {
 }
 
 
+/* ==== 删除 某天 日记 ==== */
+export const deleteDiary = async (day: string) => {
+  const { format, folder } = await getDiarySetting()
+
+  const dayObj = moment(day, DAY_FORMAT)
+  const path = `${folder}/${dayObj.format(format)}.${NOTE_EXTENSION}`
+  const rawDiary = await readTFile(path)
+  await app.vault.trash(rawDiary, true)  // - [ ] 后面统一到 src/core/file 里
+
+  return true  // 原因同上
+}
+
+
 /* ==== 获取 某月中的所有 日记 ==== */
 export const getAllDiarysInOneMonth = async (month: string) => {
   const { format, folder } = await getDiarySetting()
