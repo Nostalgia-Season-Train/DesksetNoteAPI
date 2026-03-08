@@ -1,6 +1,7 @@
 // 代码参考：https://github.com/liamcain/obsidian-daily-notes-interface
 import { TFile, moment } from 'obsidian'
 import { app } from 'src/core/global'
+import { DesksetError } from 'src/core/error'
 import { readTFile } from 'src/core/file'
 import { listTasks } from './_note/task'
 
@@ -46,6 +47,65 @@ export const getOneDiary = async (day: string) => {
   const rawDiary = await readTFile(path)
 
   return await _parseDiary(dayObj.format(DAY_FORMAT), rawDiary)
+}
+
+
+/* ==== 创建 某天 日记 ==== */
+export const createDiary = async (day: string) => {
+  const { format: setFormat, folder: setFolder, template: setTemplate } = await getDiarySetting()
+
+  const dayObj = moment(day, DAY_FORMAT)
+  const path = `${setFolder}/${dayObj.format(setFormat)}.${NOTE_EXTENSION}`
+  const name = dayObj.format(setFormat)               // 日记名称（主名不包括后缀）
+  const dir = path.split('/').slice(0, -1).join('/')  // 日记目录，比如 path = YYYY/MM/DD.md 那么 dir = YYYY/MM
+
+  // 创建目录
+  if (!app.vault.getAbstractFileByPath(dir)) {
+    await window.app.vault.createFolder(dir)
+  }
+
+  // 创建日记
+  const templateTFile = app.vault.getFileByPath(`${setTemplate}.${NOTE_EXTENSION}`)
+  const templateText = templateTFile !== null ? await app.vault.cachedRead(templateTFile) : ''
+
+  // 代码来源：https://github.com/liamcain/obsidian-daily-notes-interface/blob/main/src/daily.ts#L28
+  try {
+    return await app.vault.create(
+      path,
+      templateText
+        .replace(/{{\s*date\s*}}/gi, name)
+        .replace(/{{\s*time\s*}}/gi, moment().format('HH:mm'))
+        .replace(/{{\s*title\s*}}/gi, name)
+        .replace(
+          /{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi,
+          (_, _timeOrDate, calc, timeDelta, unit, momentFormat) => {
+            const now = moment()
+            const currentDate = dayObj.clone().set({
+              hour: now.get('hour'),
+              minute: now.get('minute'),
+              second: now.get('second')
+            })
+            if (calc) {
+              currentDate.add(parseInt(timeDelta, 10), unit)
+            }
+            if (momentFormat) {
+              return currentDate.format(momentFormat.substring(1).trim())
+            }
+            return currentDate.format(setFormat)
+          }
+        )
+        .replace(
+          /{{\s*yesterday\s*}}/gi,
+          dayObj.clone().subtract(1, 'day').format(setFormat)
+        )
+        .replace(
+          /{{\s*tomorrow\s*}}/gi,
+          dayObj.clone().add(1, 'd').format(setFormat)
+        )
+    )
+  } catch (err) {
+    throw new DesksetError(`Failed to create file: '${path}'.\nReason: ${err?.message}`)
+  }
 }
 
 
