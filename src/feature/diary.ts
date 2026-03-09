@@ -13,14 +13,22 @@ const DEFAULT_DIARY_FORMAT = 'YYYY-MM-DD'
 const _parseDiary = async (id: string, tfile: TFile) => {
   const name = tfile.basename
   const path = tfile.path
-  const text = await app.vault.read(tfile)
-  const content = text.replace(/^---[\s\S]+?---\n?/, '')
+  const data = await app.vault.read(tfile)
+  const match = data.match(/(^---\n[\s\S]*\n---\n?)([\s\S]*)/)
+  let frontmatterStr = ''
+  let text = ''
+  if (match === null) {
+    text = data
+  } else {
+    frontmatterStr = match[1]
+    text = match[2]
+  }
   return {
     id: id,
     name: name,
     path: path,
+    data: data,
     text: text,
-    content: content,
     tasks: await listTasks(path) ?? []
   }
 }
