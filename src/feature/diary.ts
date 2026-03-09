@@ -152,6 +152,26 @@ export const editDiary = async (day: string, newText: string) => {
 }
 
 
+/* ==== 插入 某天 日记 ==== */
+export const insertDiary = async (day: string, line: number | null, insertData: string) => {
+  const { format, folder } = await getDiarySetting()
+
+  const dayObj = moment(day, DAY_FORMAT)
+  const path = `${folder}/${dayObj.format(format)}.${NOTE_EXTENSION}`
+  const rawDiary = await readTFile(path)
+
+  let data = await app.vault.read(rawDiary)
+  if (line === null)
+    data += insertData
+  else
+    // @ts-ignore splice 传给 join 空数组，用 toSpliced 链式传递新数组
+    data = data.split('\n').toSpliced(line, 0, insertData).join('\n')
+  await app.vault.adapter.write(rawDiary.path, data)
+
+  return true
+}
+
+
 /* ==== 删除 某天 日记 ==== */
 export const deleteDiary = async (day: string) => {
   const { format, folder } = await getDiarySetting()
