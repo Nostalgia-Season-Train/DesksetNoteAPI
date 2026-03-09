@@ -1,7 +1,11 @@
 import { App } from 'obsidian'
 import { DataviewApi, getAPI } from 'obsidian-dataview'
 
-import { getDiarySetting, listDiarypropsInMonth, readDiary, createDiary, writeDiary, deleteDiary } from 'src/feature/diary'
+import {
+  getDiarySetting, listDiarypropsInMonth,
+  readDiary, createDiary, writeDiary, deleteDiary,
+  editDiary, insertDiary
+} from 'src/feature/diary'
 import { listTasks, toggleTask, creatTask, editTask, deletTask } from 'src/feature/_note/task'
 import { getSuggestions } from 'src/feature/suggest'
 import { statsFile } from 'src/feature/_vault/filter'
@@ -41,6 +45,8 @@ export default class Unify {
   read_diary = readDiary
   create_diary = createDiary
   write_diary = writeDiary
+  edit_diary = editDiary
+  insert_diary = insertDiary
   delete_diary = deleteDiary
 
   /* --- 任务 Task --- */
