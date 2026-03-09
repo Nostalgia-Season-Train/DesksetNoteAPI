@@ -38,8 +38,8 @@ export const getDiarySetting = async (): Promise<{ format: string, folder: strin
 }
 
 
-/* ==== 获取 某天 日记 ==== */
-export const getOneDiary = async (day: string) => {
+/* ==== 读取 某天 日记 ==== */
+export const readDiary = async (day: string) => {
   const { format, folder } = await getDiarySetting()
 
   const dayObj = moment(day, DAY_FORMAT)
@@ -136,8 +136,8 @@ export const deleteDiary = async (day: string) => {
 }
 
 
-/* ==== 获取 某月中的所有 日记 ==== */
-export const getAllDiarysInOneMonth = async (month: string) => {
+/* ==== 列出 某月中的所有 日记属性 ==== */
+export const listDiarypropsInMonth = async (month: string) => {
   const { format, folder } = await getDiarySetting()
   const monthObj = moment(month, MONTH_FORMAT)
 
