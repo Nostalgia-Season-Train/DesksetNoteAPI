@@ -27,7 +27,12 @@ const _parseDiary = async (id: string, tfile: TFile) => {
     id: id,
     name: name,
     path: path,
-    data: data,
+    get data() {
+      const frontmatter = frontmatterStr
+      if (frontmatter !== '' && !frontmatter.endsWith('\n') && this.text !== '')
+        return frontmatter + '\n' + this.text  // 自动添一行
+      return frontmatter + this.text
+    },
     text: text,
     tasks: await listTasks(path) ?? []
   }
@@ -128,6 +133,22 @@ export const writeDiary = async (day: string, newData: string) => {
   await app.vault.adapter.write(rawDiary.path, newData)  // - [ ] 后面统一到 src/core/file 里
 
   return true  // 原因同上
+}
+
+
+/* ==== 编辑 某天 日记 ==== */
+export const editDiary = async (day: string, newText: string) => {
+  const { format, folder } = await getDiarySetting()
+
+  const dayObj = moment(day, DAY_FORMAT)
+  const path = `${folder}/${dayObj.format(format)}.${NOTE_EXTENSION}`
+  const rawDiary = await readTFile(path)
+
+  const diary = await _parseDiary(dayObj.format(DAY_FORMAT), rawDiary)
+  diary.text = newText
+  await app.vault.adapter.write(rawDiary.path, diary.data)
+
+  return true
 }
 
 
