@@ -35,6 +35,13 @@ const _getUsedayNum = async (): Promise<number> => {
   return Math.floor([new Date() - oldestNote.ctime] / (60 * 60 * 24 * 1000))
 }
 
+export const getVaultMetainfo = async () => {
+  const rootpath = (app.vault.adapter as any).basePath as string
+  return {
+    rootpath: rootpath
+  }
+}
+
 
 /* ==== 仓库信息 ==== */
 export const getVaultInfo = async () => {

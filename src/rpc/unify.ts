@@ -9,7 +9,7 @@ import {
 import { listTasks, toggleTask, creatTask, editTask, deletTask } from 'src/feature/_note/task'
 import { getSuggestions } from 'src/feature/suggest'
 import { statsFile } from 'src/feature/_vault/filter'
-import { getVaultInfo, getActiveFile } from 'src/feature/_vault/info'
+import { getVaultMetainfo, getVaultInfo, getActiveFile } from 'src/feature/_vault/info'
 import { getHeats } from 'src/feature/_vault/heatmap'
 import { getAllCommands, executeCommand } from 'src/feature/command'
 import { openOnObsidian, openFileOnObsidian } from 'src/feature/winpage'
@@ -29,6 +29,7 @@ export default class Unify {
   }
 
   /* --- 仓库 --- */
+  get_vault_metainfo = getVaultMetainfo
   get_vault_status = getVaultInfo
   get_heatmap = getHeats
   get_active_file = getActiveFile
