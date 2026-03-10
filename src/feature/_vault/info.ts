@@ -37,9 +37,9 @@ const _getUsedayNum = async (): Promise<number> => {
 
 export const getVaultMetainfo = async () => {
   const rootpath = (app.vault.adapter as any).basePath as string
-  rootpath.replace('\\', '/')
   return {
-    rootpath: rootpath
+    // @ts-ignore \ 分隔符转换为 / 分隔符
+    rootpath: rootpath.replaceAll('\\', '/')
   }
 }
 
