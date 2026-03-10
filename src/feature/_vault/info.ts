@@ -41,9 +41,9 @@ export const getVaultInfo = async () => {
   const loopStats = await _loopVault()
   return {
     note_num: loopStats.noteNum,                             // 笔记总数
-    attach_num: loopStats.attachNum,                         // 附件总数
+    asset_num: loopStats.attachNum,                         // 附件总数
     note_today_num: loopStats.noteTodayNum,                  // 今天创建的笔记总数
-    attach_today_num: loopStats.attachTodayNum,              // 今天创建的附件总数
+    asset_today_num: loopStats.attachTodayNum,              // 今天创建的附件总数
     useday_num: await _getUsedayNum(),                       // 使用天数
     tag_num: dataview.pages().file.etags.distinct().length,  // 标签总数
     task_num: dataview.pages().file.tasks.length             // 任务总数
