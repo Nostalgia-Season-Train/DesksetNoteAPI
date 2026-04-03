@@ -1,7 +1,7 @@
 {
 	"id": "deskset-noteapi",
 	"name": "Deskset NoteAPI",
-	"version": "0.0.1a",
+	"version": "0.0.2a",
 	"minAppVersion": "1.5.12",
 	"description": "数字桌搭与 Obsidian 交互的 API",
 	"author": "Nostalgia-Season-Train",
