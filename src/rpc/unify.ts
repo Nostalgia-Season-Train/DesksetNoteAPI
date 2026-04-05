@@ -42,7 +42,7 @@ export default class Unify {
   filter_frontmatter = statsFile
 
   /* --- 笔记 --- */
-  list_notes = listNotepaths
+  list_notepaths = listNotepaths
   read_note = readNote
   insert_note = insertNote
 

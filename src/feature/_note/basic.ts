@@ -2,7 +2,7 @@ import { app } from 'src/core/global'
 import { FileNotExistError, FileAlreadyExistError } from 'src/core/error'
 
 
-/* ==== 列出仓库子目录下所有文件路径 ==== */
+/* ==== 列出仓库子目录下所有笔记路径 ==== */
 export const listNotepaths = async (directory: string): Promise<string[]> => {
   const abstractFiles = app.vault.getFiles()
   const filePaths: string[] = []
