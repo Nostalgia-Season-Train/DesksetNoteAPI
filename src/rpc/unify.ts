@@ -6,6 +6,7 @@ import {
   readDiary, createDiary, writeDiary, deleteDiary,
   editDiary, insertDiary
 } from 'src/feature/diary'
+import { listNotepaths, readNote, insertNote } from 'src/feature/_note/basic'
 import { listTasks, toggleTask, creatTask, editTask, deletTask } from 'src/feature/_note/task'
 import { getSuggestions } from 'src/feature/suggest'
 import { statsFile } from 'src/feature/_vault/filter'
@@ -39,6 +40,11 @@ export default class Unify {
 
   /* --- 数据分析 --- */
   filter_frontmatter = statsFile
+
+  /* --- 笔记 --- */
+  list_notes = listNotepaths
+  read_note = readNote
+  insert_note = insertNote
 
   /* --- 日记 --- */
   get_diary_setting = getDiarySetting
