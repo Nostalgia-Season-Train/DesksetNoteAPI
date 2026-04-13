@@ -58,7 +58,7 @@ export default class DesksetNoteAPI {
 
     // 初始化
     this._notetoken = (await request({
-      url: `http:${this._setting.host}:${this._setting.port}/v0/access/note/obsidian/login`,
+      url: `http:${this._setting.host}:${this._setting.port}/access/obsidian/login`,
       method: 'post',
       contentType: 'application/x-www-form-urlencoded',
       body: new URLSearchParams({
@@ -71,7 +71,7 @@ export default class DesksetNoteAPI {
       }
     })).slice(1, -1)  // 去掉字符串双引号...
     this._websocket = new WebSocket(
-      `ws://${this._setting.host}:${this._setting.port}/v0/access/note/obsidian/rpc`,
+      `ws://${this._setting.host}:${this._setting.port}/access/obsidian/rpc`,
       ['Authorization', `bearer-${this._notetoken}`]
     )
     this._rpc = new RpcServer(this._websocket, this._unify)
