@@ -26,8 +26,7 @@ export const deskset: {
   setting: {
     host: '127.0.0.1',
     port: 6528,
-    username: 'noteapi-user' + randomString(5, 10),
-    password: 'noteapi-pswd' + randomString(10, 20),
+    token: randomString(10, 20),
     task: {
       newTaskPosition: NewTaskPosition.LatestTask
     }

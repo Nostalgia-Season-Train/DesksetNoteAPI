@@ -6,8 +6,7 @@ export enum NewTaskPosition {
 export interface DesksetPluginSetting {
   host: string
   port: number
-  username: string
-  password: string
+  token: string
   task: {
     newTaskPosition: NewTaskPosition
   }

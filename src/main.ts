@@ -5,8 +5,9 @@ import { deskset } from './core/global'
 import DesksetNoteAPI from './rpc/api'
 
 export default class DesksetPlugin extends Plugin {
+  // @ts-ignore
   settings: DesksetPluginSetting
-
+  // @ts-ignore
   api: DesksetNoteAPI
 
   async onload() {
@@ -62,20 +63,11 @@ class DesksetPluginSettingTab extends PluginSettingTab {
         }))
 
     new Setting(containerEl)
-      .setName('用户名')
+      .setName('令牌')
       .addText(text => text
-        .setValue(String(this.plugin.settings.username))
+        .setValue(String(this.plugin.settings.token))
         .onChange(async (value) => {
-          this.plugin.settings.username = String(value)
-          await this.plugin.saveSettings()
-        }))
-
-    new Setting(containerEl)
-      .setName('密码')
-      .addText(text => text
-        .setValue(String(this.plugin.settings.password))
-        .onChange(async (value) => {
-          this.plugin.settings.password = String(value)
+          this.plugin.settings.token = String(value)
           await this.plugin.saveSettings()
         }))
 
@@ -86,6 +78,7 @@ class DesksetPluginSettingTab extends PluginSettingTab {
           .addOption(NewTaskPosition.LatestTask, '文件最后一个任务之后')
           .addOption(NewTaskPosition.LatestLine, '文件最后一行')
           .setValue(this.plugin.settings.task.newTaskPosition)
+          // @ts-ignore
           .onChange(async (value: NewTaskPosition) => {
             this.plugin.settings.task.newTaskPosition = value
             await this.plugin.saveSettings()

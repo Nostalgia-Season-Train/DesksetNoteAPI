@@ -57,22 +57,9 @@ export default class DesksetNoteAPI {
       return
 
     // 初始化
-    this._notetoken = (await request({
-      url: `http:${this._setting.host}:${this._setting.port}/access/obsidian/login`,
-      method: 'post',
-      contentType: 'application/x-www-form-urlencoded',
-      body: new URLSearchParams({
-        username: this._setting.username,
-        password: this._setting.password,
-        version: this._plugin.manifest.version
-      }).toString(),
-      headers: {
-        'Sec-Deskset-NoteAPI': 'PNA'
-      }
-    })).slice(1, -1)  // 去掉字符串双引号...
     this._websocket = new WebSocket(
-      `ws://${this._setting.host}:${this._setting.port}/access/obsidian/rpc`,
-      ['Authorization', `bearer-${this._notetoken}`]
+      `ws://${this._setting.host}:${this._setting.port}/kms/rpc`,
+      ['Authorization', `Bearer-${this._setting.token}`]
     )
     this._rpc = new RpcServer(this._websocket, this._unify)
     console.log('NoteAPI %conline', 'color: green;', `for '${this._address}' address and '${this._notetoken}' token`)
