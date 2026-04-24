@@ -65,6 +65,10 @@ export default class DesksetNoteAPI {
     console.log('NoteAPI %conline', 'color: green;', `for '${this._address}' address and '${this._notetoken}' token`)
 
     // 退出事件：连接关闭、连接失败
+    this._websocket.onopen = async () => {
+      // 发出通知，提醒用户连接成功
+      new Notice('成功连接数字桌搭')
+    }
     this._websocket.onclose = async () => {
       await this.close()
     }
@@ -72,8 +76,7 @@ export default class DesksetNoteAPI {
       await this.close()
     }
 
-    // 发出通知，提醒用户连接成功
-    new Notice('成功连接数字桌搭')
+    
   }
 
   async close() {
